@@ -204,6 +204,9 @@ export default function Home() {
             <div className="flex items-center gap-2">
               <ThemeToggle />
               <Button variant="ghost" size="sm" asChild>
+                <Link to="/changelog">Changelog</Link>
+              </Button>
+              <Button variant="ghost" size="sm" asChild>
                 <a
                   href="https://github.com/QuocVietHa08/react-pdf-highlighter-plus"
                   target="_blank"

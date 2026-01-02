@@ -1,4 +1,4 @@
-import { type MouseEvent, useCallback, useEffect, useRef, useState } from "react";
+import { type MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CommentForm } from "./CommentForm";
 import { ContextMenu, type ContextMenuProps } from "./ContextMenu";
 import { ExpandableTip } from "./ExpandableTip";
@@ -10,17 +10,20 @@ import {
   type DrawingStroke,
   type GhostHighlight,
   type PdfHighlighterUtils,
+  type PdfHighlighterTheme,
   type ScaledPosition,
   type ShapeData,
   type ShapeType,
   type Tip,
   type ViewportHighlight,
+  LeftPanel,
   PdfHighlighter,
   PdfLoader,
   SignaturePad,
   exportPdf,
 } from "react-pdf-highlighter-plus";
 import { useHighlightStore, type CommentedHighlight } from "~/store/highlightStore";
+import { useEffectiveTheme } from "~/hooks/useEffectiveTheme";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Separator } from "./ui/separator";
@@ -74,11 +77,55 @@ export function PdfViewer() {
   // Sidebar state
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
   const [scrolledToHighlightId, setScrolledToHighlightId] = useState<string | null>(null);
+  // Left panel state
+  const [leftPanelOpen, setLeftPanelOpen] = useState<boolean>(true);
+
+  // Theme integration
+  const effectiveTheme = useEffectiveTheme();
+
+  // PDF Highlighter theme configuration
+  const pdfHighlighterTheme: PdfHighlighterTheme = useMemo(
+    () => ({
+      mode: effectiveTheme,
+      containerBackgroundColor:
+        effectiveTheme === "dark" ? "hsl(240 10% 3.9%)" : "hsl(240 4.8% 95.9%)",
+      darkModeInversionIntensity: 0.87,
+      scrollbarThumbColor:
+        effectiveTheme === "dark" ? "hsl(240 5% 50%)" : "hsl(240 3.8% 70%)",
+      scrollbarTrackColor:
+        effectiveTheme === "dark" ? "hsl(240 3.7% 15.9%)" : "hsl(240 4.8% 95.9%)",
+    }),
+    [effectiveTheme]
+  );
+
+  // Left panel theme configuration
+  const leftPanelTheme = useMemo(
+    () => ({
+      mode: effectiveTheme as "light" | "dark",
+      backgroundColor:
+        effectiveTheme === "dark" ? "hsl(240 10% 3.9%)" : "hsl(0 0% 100%)",
+      textColor:
+        effectiveTheme === "dark" ? "hsl(0 0% 98%)" : "hsl(240 10% 3.9%)",
+      borderColor:
+        effectiveTheme === "dark" ? "hsl(240 3.7% 15.9%)" : "hsl(240 5.9% 90%)",
+      hoverBackgroundColor:
+        effectiveTheme === "dark" ? "hsl(240 3.7% 15.9%)" : "hsl(240 4.8% 95.9%)",
+      activeBackgroundColor:
+        effectiveTheme === "dark" ? "hsl(240 3.7% 20%)" : "hsl(240 4.8% 90%)",
+      scrollbarThumbColor:
+        effectiveTheme === "dark" ? "hsl(240 5% 64.9%)" : "hsl(240 3.8% 46.1%)",
+      scrollbarTrackColor:
+        effectiveTheme === "dark" ? "hsl(240 3.7% 15.9%)" : "hsl(240 4.8% 95.9%)",
+    }),
+    [effectiveTheme]
+  );
 
   // Refs
   const highlighterUtilsRef = useRef<PdfHighlighterUtils>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  // Track when highlighter utils are ready for LeftPanel
+  const [highlighterReady, setHighlighterReady] = useState(false);
 
   // Click listeners for context menu
   useEffect(() => {
@@ -442,12 +489,112 @@ export function PdfViewer() {
         onExportPdf={handleExportPdf}
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        leftPanelOpen={leftPanelOpen}
+        onToggleLeftPanel={() => setLeftPanelOpen(!leftPanelOpen)}
         onChangePdf={handleChangePdf}
       />
 
       {/* Main content */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
+        {/* PDF Loader wraps both LeftPanel and PdfHighlighter */}
+        <PdfLoader document={url}>
+          {(pdfDocument) => (
+            <>
+              {/* PDF Viewer - rendered first but displayed second via order */}
+              <div className="relative flex-1 overflow-hidden order-2">
+                <PdfHighlighter
+                  enableAreaSelection={(event) => event.altKey || areaMode}
+                  areaSelectionMode={areaMode}
+                  pdfDocument={pdfDocument}
+                  onScrollAway={resetHash}
+                  utilsRef={(_pdfHighlighterUtils) => {
+                    highlighterUtilsRef.current = _pdfHighlighterUtils;
+                    if (_pdfHighlighterUtils && !highlighterReady) {
+                      setHighlighterReady(true);
+                    }
+                  }}
+                  pdfScaleValue={pdfScaleValue}
+                  textSelectionColor={highlightPen ? "rgba(255, 226, 143, 1)" : undefined}
+                  onSelection={(highlightPen || areaMode) ? (selection) => {
+                    console.log("onSelection triggered", selection);
+                    addHighlight(selection.makeGhostHighlight(), "");
+                    if (areaMode) setAreaMode(false);
+                  } : undefined}
+                  selectionTip={highlightPen ? undefined : <ExpandableTip addHighlight={addHighlight} />}
+                  highlights={highlights}
+                  enableFreetextCreation={() => freetextMode}
+                  onFreetextClick={handleFreetextClick}
+                  enableImageCreation={() => imageMode}
+                  onImageClick={handleImageClick}
+                  enableDrawingMode={drawingMode}
+                  onDrawingComplete={handleDrawingComplete}
+                  onDrawingCancel={handleDrawingCancel}
+                  drawingStrokeColor={drawingStrokeColor}
+                  drawingStrokeWidth={drawingStrokeWidth}
+                  enableShapeMode={shapeMode}
+                  onShapeComplete={handleShapeComplete}
+                  onShapeCancel={handleShapeCancel}
+                  shapeStrokeColor={shapeStrokeColor}
+                  shapeStrokeWidth={shapeStrokeWidth}
+                  theme={pdfHighlighterTheme}
+                  style={{
+                    height: "100%",
+                  }}
+                >
+                  <HighlightContainer
+                    editHighlight={editHighlight}
+                    deleteHighlight={(id) => storeDeleteHighlight(id)}
+                    onContextMenu={handleContextMenu}
+                  />
+                </PdfHighlighter>
+
+                {/* Floating Actions */}
+                <FloatingActions
+                  highlightPen={highlightPen}
+                  onToggleHighlightPen={() => setHighlightPen(!highlightPen)}
+                  freetextMode={freetextMode}
+                  onToggleFreetextMode={() => setFreetextMode(!freetextMode)}
+                  areaMode={areaMode}
+                  onToggleAreaMode={() => setAreaMode(!areaMode)}
+                  onAddImage={handleAddImage}
+                  onAddSignature={handleAddSignature}
+                  drawingMode={drawingMode}
+                  onToggleDrawingMode={() => setDrawingMode(!drawingMode)}
+                  drawingStrokeColor={drawingStrokeColor}
+                  onDrawingColorChange={setDrawingStrokeColor}
+                  drawingStrokeWidth={drawingStrokeWidth}
+                  onDrawingWidthChange={setDrawingStrokeWidth}
+                  shapeMode={shapeMode}
+                  onSetShapeMode={setShapeMode}
+                  shapeStrokeColor={shapeStrokeColor}
+                  onShapeColorChange={setShapeStrokeColor}
+                  shapeStrokeWidth={shapeStrokeWidth}
+                  onShapeWidthChange={setShapeStrokeWidth}
+                />
+              </div>
+
+              {/* Left Panel - Document Outline & Thumbnails (rendered after PdfHighlighter but displayed first via order) */}
+              <LeftPanel
+                pdfDocument={pdfDocument}
+                isOpen={leftPanelOpen}
+                onOpenChange={setLeftPanelOpen}
+                width={256}
+                theme={leftPanelTheme}
+                showToggleButton={false}
+                viewer={highlighterUtilsRef.current?.getViewer()}
+                linkService={highlighterUtilsRef.current?.getLinkService()}
+                eventBus={highlighterUtilsRef.current?.getEventBus()}
+                onPageSelect={(pageNumber) => {
+                  console.log("Navigating to page:", pageNumber);
+                  highlighterUtilsRef.current?.goToPage(pageNumber);
+                }}
+                className="order-1"
+              />
+            </>
+          )}
+        </PdfLoader>
+
+        {/* Right Sidebar - Highlights */}
         <Sidebar
           highlights={highlights}
           resetHighlights={resetHighlights}
@@ -456,79 +603,6 @@ export function PdfViewer() {
           onDeleteHighlight={(highlight: CommentedHighlight) => storeDeleteHighlight(highlight.id)}
           isOpen={sidebarOpen}
         />
-
-        {/* PDF Viewer */}
-        <div className="relative flex-1 overflow-hidden">
-          <PdfLoader document={url}>
-            {(pdfDocument) => (
-              <PdfHighlighter
-                enableAreaSelection={(event) => event.altKey || areaMode}
-                areaSelectionMode={areaMode}
-                pdfDocument={pdfDocument}
-                onScrollAway={resetHash}
-                utilsRef={(_pdfHighlighterUtils) => {
-                  highlighterUtilsRef.current = _pdfHighlighterUtils;
-                }}
-                pdfScaleValue={pdfScaleValue}
-                textSelectionColor={highlightPen ? "rgba(255, 226, 143, 1)" : undefined}
-                onSelection={(highlightPen || areaMode) ? (selection) => {
-                  console.log("onSelection triggered", selection);
-                  addHighlight(selection.makeGhostHighlight(), "");
-                  if (areaMode) setAreaMode(false);
-                } : undefined}
-                selectionTip={highlightPen ? undefined : <ExpandableTip addHighlight={addHighlight} />}
-                highlights={highlights}
-                enableFreetextCreation={() => freetextMode}
-                onFreetextClick={handleFreetextClick}
-                enableImageCreation={() => imageMode}
-                onImageClick={handleImageClick}
-                enableDrawingMode={drawingMode}
-                onDrawingComplete={handleDrawingComplete}
-                onDrawingCancel={handleDrawingCancel}
-                drawingStrokeColor={drawingStrokeColor}
-                drawingStrokeWidth={drawingStrokeWidth}
-                enableShapeMode={shapeMode}
-                onShapeComplete={handleShapeComplete}
-                onShapeCancel={handleShapeCancel}
-                shapeStrokeColor={shapeStrokeColor}
-                shapeStrokeWidth={shapeStrokeWidth}
-                style={{
-                  height: "100%",
-                }}
-              >
-                <HighlightContainer
-                  editHighlight={editHighlight}
-                  deleteHighlight={(id) => storeDeleteHighlight(id)}
-                  onContextMenu={handleContextMenu}
-                />
-              </PdfHighlighter>
-            )}
-          </PdfLoader>
-
-          {/* Floating Actions */}
-          <FloatingActions
-            highlightPen={highlightPen}
-            onToggleHighlightPen={() => setHighlightPen(!highlightPen)}
-            freetextMode={freetextMode}
-            onToggleFreetextMode={() => setFreetextMode(!freetextMode)}
-            areaMode={areaMode}
-            onToggleAreaMode={() => setAreaMode(!areaMode)}
-            onAddImage={handleAddImage}
-            onAddSignature={handleAddSignature}
-            drawingMode={drawingMode}
-            onToggleDrawingMode={() => setDrawingMode(!drawingMode)}
-            drawingStrokeColor={drawingStrokeColor}
-            onDrawingColorChange={setDrawingStrokeColor}
-            drawingStrokeWidth={drawingStrokeWidth}
-            onDrawingWidthChange={setDrawingStrokeWidth}
-            shapeMode={shapeMode}
-            onSetShapeMode={setShapeMode}
-            shapeStrokeColor={shapeStrokeColor}
-            onShapeColorChange={setShapeStrokeColor}
-            shapeStrokeWidth={shapeStrokeWidth}
-            onShapeWidthChange={setShapeStrokeWidth}
-          />
-        </div>
       </div>
 
       {contextMenu && <ContextMenu {...contextMenu} />}

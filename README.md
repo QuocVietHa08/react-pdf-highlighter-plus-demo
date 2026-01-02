@@ -11,7 +11,9 @@ A modern, feature-rich PDF annotation demo application built with React, showcas
 - **Freehand Drawing** - Draw with customizable stroke color and width
 - **Shape Annotations** - Add rectangles, circles, and arrows
 - **PDF Export** - Export with all annotations permanently embedded
-- **Dark/Light Mode** - Theme toggle with 6 color themes
+- **Dark/Light Mode** - Theme toggle with 6 color themes + PDF page inversion
+- **Document Outline** - Navigate PDF using table of contents
+- **Page Thumbnails** - Visual page navigation panel
 - **LocalStorage Persistence** - Annotations persist across sessions
 
 ## Tech Stack
@@ -72,10 +74,12 @@ app/
 ├── components/
 │   ├── ui/              # shadcn/ui components
 │   ├── Header.tsx       # App header with controls
-│   ├── Sidebar.tsx      # Highlights sidebar
-│   ├── PdfViewer.tsx    # Main PDF viewer
+│   ├── Sidebar.tsx      # Highlights sidebar (right)
+│   ├── PdfViewer.tsx    # Main PDF viewer with LeftPanel
 │   ├── FloatingActions.tsx  # FAB with annotation tools
 │   └── ...
+├── hooks/
+│   └── useEffectiveTheme.ts  # Theme resolution hook
 ├── routes/
 │   ├── home.tsx         # Landing page
 │   └── pdf-demo.tsx     # PDF demo page
@@ -155,6 +159,43 @@ Build and deploy the `build/client` directory to any static hosting:
 - [GitHub Repository](https://github.com/QuocVietHa08/react-pdf-highlighter-plus)
 - [shadcn/ui](https://ui.shadcn.com/)
 - [Tailwind CSS](https://tailwindcss.com/)
+
+## Changelog
+
+### v1.1.0 (2026-01-02)
+
+**New Features:**
+- **Left Panel** - Added collapsible document panel with:
+  - Document Outline tab (table of contents navigation)
+  - Page Thumbnails tab (visual page navigation)
+  - Click-to-navigate functionality
+- **PDF Viewer Theme Integration** - Connected app theme to PDF viewer:
+  - Dark mode with PDF page inversion (0.87 intensity)
+  - Custom scrollbar colors matching app theme
+  - Container background synced with theme
+- **Dual Panel Layout** - New layout with:
+  - Left Panel (Document Outline & Pages) - toggle with left button
+  - Right Sidebar (Highlights) - toggle with right button
+- **useEffectiveTheme Hook** - New hook to resolve "system" theme to actual light/dark
+
+**Technical Changes:**
+- Added `LeftPanel` component from react-pdf-highlighter-plus
+- Added `PdfHighlighterTheme` for PDF viewer theming
+- Added `leftPanelTheme` configuration matching shadcn/ui colors
+- Restructured PdfViewer layout with CSS order for proper rendering
+- Added viewer/linkService/eventBus integration for outline navigation
+
+### v1.0.0 (Initial Release)
+
+- Text highlighting with comments
+- Area selection (Alt + drag)
+- Freetext sticky notes
+- Image & signature embedding
+- Freehand drawing
+- Shape annotations (rectangle, circle, arrow)
+- PDF export with annotations
+- Dark/Light mode with 6 color themes
+- LocalStorage persistence
 
 ## License
 

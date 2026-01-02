@@ -1,4 +1,4 @@
-import { Download, Minus, PanelLeftClose, PanelLeft, Plus, Upload } from "lucide-react";
+import { Download, Minus, PanelLeftClose, PanelLeft, PanelRightClose, PanelRight, Plus, Upload, FileText } from "lucide-react";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import {
@@ -16,6 +16,8 @@ interface HeaderProps {
   onExportPdf: () => void;
   sidebarOpen: boolean;
   onToggleSidebar: () => void;
+  leftPanelOpen: boolean;
+  onToggleLeftPanel: () => void;
   onChangePdf?: () => void;
 }
 
@@ -26,6 +28,8 @@ export function Header({
   onExportPdf,
   sidebarOpen,
   onToggleSidebar,
+  leftPanelOpen,
+  onToggleLeftPanel,
   onChangePdf,
 }: HeaderProps) {
   const displayZoom = pdfScaleValue
@@ -37,14 +41,15 @@ export function Header({
       <div className="flex h-14 items-center justify-between border-b bg-background px-4">
         {/* Left section */}
         <div className="flex items-center gap-3">
+          {/* Left Panel Toggle (Document Outline & Pages) */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="h-8 w-8">
-                {sidebarOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
+              <Button variant="ghost" size="icon" onClick={onToggleLeftPanel} className="h-8 w-8">
+                {leftPanelOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              {sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+              {leftPanelOpen ? "Hide document panel" : "Show document panel"}
             </TooltipContent>
           </Tooltip>
 
@@ -56,6 +61,20 @@ export function Header({
             </div>
             <span className="text-sm font-semibold">Highlighter</span>
           </div>
+
+          <Separator orientation="vertical" className="h-6" />
+
+          {/* Right Sidebar Toggle (Highlights) */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="h-8 w-8">
+                {sidebarOpen ? <PanelRightClose className="h-4 w-4" /> : <PanelRight className="h-4 w-4" />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {sidebarOpen ? "Hide highlights" : "Show highlights"}
+            </TooltipContent>
+          </Tooltip>
         </div>
 
         {/* Right section */}

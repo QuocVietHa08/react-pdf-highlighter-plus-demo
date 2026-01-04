@@ -10,6 +10,7 @@ import {
   PanelLeft,
   Moon,
   Code2,
+  Package,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -41,6 +42,26 @@ interface ChangelogEntry {
 }
 
 const changelog: ChangelogEntry[] = [
+  {
+    version: "1.1.1",
+    date: "2026-01-04",
+    title: "Package Update & Bug Fix",
+    features: [
+      {
+        icon: Package,
+        title: "Package Update",
+        description: "Updated react-pdf-highlighter-plus to v1.1.3",
+        items: [
+          "Fixed CSS import path (now uses dist/esm/style/style.css)",
+          "Improved package structure",
+        ],
+      },
+    ],
+    technical: [
+      "Updated `react-pdf-highlighter-plus` from v1.1.2 to v1.1.3",
+      "Fixed CSS import in root.tsx to use new path",
+    ],
+  },
   {
     version: "1.1.0",
     date: "2026-01-02",

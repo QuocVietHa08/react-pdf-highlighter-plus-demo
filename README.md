@@ -162,6 +162,12 @@ Build and deploy the `build/client` directory to any static hosting:
 
 ## Changelog
 
+### v1.1.1 (2026-01-04)
+
+**Bug Fix:**
+- Updated `react-pdf-highlighter-plus` to v1.1.3
+- Fixed CSS import path (now uses `dist/esm/style/style.css`)
+
 ### v1.1.0 (2026-01-02)
 
 **New Features:**

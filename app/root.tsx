@@ -9,7 +9,7 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import "react-pdf-highlighter-plus/style/style.css";
+import "node_modules/react-pdf-highlighter-plus/dist/esm/style/style.css";
 import "@fontsource/geist-sans/400.css";
 import "@fontsource/geist-sans/500.css";
 import "@fontsource/geist-sans/600.css";

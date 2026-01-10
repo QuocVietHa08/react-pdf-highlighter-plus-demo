@@ -1,4 +1,4 @@
-import { Download, Minus, PanelLeftClose, PanelLeft, PanelRightClose, PanelRight, Plus, Upload, FileText } from "lucide-react";
+import { Download, Minus, PanelLeftClose, PanelLeft, PanelRightClose, PanelRight, Plus, Upload, HelpCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import {
@@ -19,6 +19,7 @@ interface HeaderProps {
   leftPanelOpen: boolean;
   onToggleLeftPanel: () => void;
   onChangePdf?: () => void;
+  onStartTour?: () => void;
 }
 
 export function Header({
@@ -31,6 +32,7 @@ export function Header({
   leftPanelOpen,
   onToggleLeftPanel,
   onChangePdf,
+  onStartTour,
 }: HeaderProps) {
   const displayZoom = pdfScaleValue
     ? `${Math.round(pdfScaleValue * 100)}%`
@@ -44,7 +46,13 @@ export function Header({
           {/* Left Panel Toggle (Document Outline & Pages) */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={onToggleLeftPanel} className="h-8 w-8">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onToggleLeftPanel}
+                className="h-8 w-8"
+                data-tour="left-panel-toggle"
+              >
                 {leftPanelOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
               </Button>
             </TooltipTrigger>
@@ -61,20 +69,6 @@ export function Header({
             </div>
             <span className="text-sm font-semibold">Highlighter</span>
           </div>
-
-          <Separator orientation="vertical" className="h-6" />
-
-          {/* Right Sidebar Toggle (Highlights) */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="h-8 w-8">
-                {sidebarOpen ? <PanelRightClose className="h-4 w-4" /> : <PanelRight className="h-4 w-4" />}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {sidebarOpen ? "Hide highlights" : "Show highlights"}
-            </TooltipContent>
-          </Tooltip>
         </div>
 
         {/* Right section */}
@@ -95,7 +89,7 @@ export function Header({
           )}
 
           {/* Zoom controls */}
-          <div className="flex items-center rounded-md border bg-muted/50">
+          <div className="flex items-center rounded-md border bg-muted/50" data-tour="zoom-controls">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" size="icon" onClick={onZoomOut} className="h-8 w-8 rounded-r-none">
@@ -124,15 +118,56 @@ export function Header({
 
           <Separator orientation="vertical" className="h-6" />
 
+          {/* Help/Tour button */}
+          {onStartTour && (
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onStartTour}
+                    className="gap-1 border-primary/50 text-primary hover:bg-primary/10"
+                  >
+                    <HelpCircle className="h-4 w-4" />
+                    Guide
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Take a quick tour of the features</TooltipContent>
+              </Tooltip>
+              <Separator orientation="vertical" className="h-6" />
+            </>
+          )}
+
           {/* Export button */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="sm" onClick={onExportPdf}>
+              <Button variant="outline" size="sm" onClick={onExportPdf} data-tour="export-button">
                 <Download className="h-4 w-4 mr-1" />
                 Export PDF
               </Button>
             </TooltipTrigger>
             <TooltipContent>Export PDF with annotations</TooltipContent>
+          </Tooltip>
+
+          <Separator orientation="vertical" className="h-6" />
+
+          {/* Right Sidebar Toggle (Highlights) */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onToggleSidebar}
+                className="h-8 w-8"
+                data-tour="sidebar-toggle"
+              >
+                {sidebarOpen ? <PanelRightClose className="h-4 w-4" /> : <PanelRight className="h-4 w-4" />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {sidebarOpen ? "Hide highlights" : "Show highlights"}
+            </TooltipContent>
           </Tooltip>
         </div>
       </div>

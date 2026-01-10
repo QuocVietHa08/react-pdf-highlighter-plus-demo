@@ -6,6 +6,7 @@ import { HighlightContainer } from "./HighlightContainer";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { FloatingActions } from "./FloatingActions";
+import { useTour } from "~/hooks/useTour";
 import {
   type DrawingStroke,
   type GhostHighlight,
@@ -124,6 +125,9 @@ export function PdfViewer() {
   const highlighterUtilsRef = useRef<PdfHighlighterUtils>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+
+  // Tour hook
+  const { startTour } = useTour();
   // Track when highlighter utils are ready for LeftPanel
   const [highlighterReady, setHighlighterReady] = useState(false);
 
@@ -492,6 +496,7 @@ export function PdfViewer() {
         leftPanelOpen={leftPanelOpen}
         onToggleLeftPanel={() => setLeftPanelOpen(!leftPanelOpen)}
         onChangePdf={handleChangePdf}
+        onStartTour={startTour}
       />
 
       {/* Main content */}
@@ -570,6 +575,7 @@ export function PdfViewer() {
                   onShapeColorChange={setShapeStrokeColor}
                   shapeStrokeWidth={shapeStrokeWidth}
                   onShapeWidthChange={setShapeStrokeWidth}
+                  sidebarOpen={sidebarOpen}
                 />
               </div>
 
@@ -602,6 +608,7 @@ export function PdfViewer() {
           onEditHighlight={handleEditFromSidebar}
           onDeleteHighlight={(highlight: CommentedHighlight) => storeDeleteHighlight(highlight.id)}
           isOpen={sidebarOpen}
+          className="order-3"
         />
       </div>
 

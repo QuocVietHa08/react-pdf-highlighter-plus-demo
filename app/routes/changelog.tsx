@@ -11,6 +11,8 @@ import {
   Moon,
   Code2,
   Package,
+  HelpCircle,
+  Navigation,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -42,6 +44,51 @@ interface ChangelogEntry {
 }
 
 const changelog: ChangelogEntry[] = [
+  {
+    version: "1.2.0",
+    date: "2026-01-10",
+    title: "Guided Tour & Improved Discoverability",
+    features: [
+      {
+        icon: Navigation,
+        title: "Interactive Guided Tour",
+        description: "New onboarding experience powered by Driver.js",
+        items: [
+          "5-step tour covering all main features",
+          "Click 'Guide' button in header to start anytime",
+          "Tour progress indicator",
+          "Themed popover matching app design",
+        ],
+      },
+      {
+        icon: HelpCircle,
+        title: "Help Button",
+        description: "Prominent 'Guide' button in the header toolbar",
+        items: [
+          "Easy access to feature tour",
+          "Primary color styling for visibility",
+          "Tooltip with description",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "FAB Pulse Animation",
+        description: "Visual indicator for first-time users",
+        items: [
+          "Pulsing ring animation on floating action button",
+          "Stops after first interaction",
+          "Persisted state in localStorage",
+        ],
+      },
+    ],
+    technical: [
+      "Added `driver.js` library for guided tours",
+      "Created `useTour` hook in `/app/hooks/useTour.ts`",
+      "Added `data-tour` attributes to key UI elements",
+      "Added Driver.js theme overrides in app.css",
+      "Restored FAB pulse animation with `animate-pulse-ring` class",
+    ],
+  },
   {
     version: "1.1.1",
     date: "2026-01-04",

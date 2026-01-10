@@ -28,6 +28,7 @@ interface SidebarProps {
   onEditHighlight: (highlight: CommentedHighlight) => void;
   onDeleteHighlight: (highlight: CommentedHighlight) => void;
   isOpen: boolean;
+  className?: string;
 }
 
 const updateHash = (highlight: Highlight) => {
@@ -79,6 +80,7 @@ export function Sidebar({
   onEditHighlight,
   onDeleteHighlight,
   isOpen,
+  className,
 }: SidebarProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedPages, setExpandedPages] = useState<Set<number>>(new Set());
@@ -132,8 +134,9 @@ export function Sidebar({
   return (
     <div
       className={cn(
-        "flex h-full flex-col border-r bg-background transition-all duration-300",
-        isOpen ? "w-80" : "w-0 overflow-hidden"
+        "flex h-full flex-col border-l bg-background transition-all duration-300",
+        isOpen ? "w-80" : "w-0 overflow-hidden",
+        className
       )}
     >
       {/* Header */}

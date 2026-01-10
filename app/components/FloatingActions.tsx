@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Plus,
   X,
@@ -46,6 +46,7 @@ interface FloatingActionsProps {
   onShapeColorChange: (color: string) => void;
   shapeStrokeWidth: number;
   onShapeWidthChange: (width: number) => void;
+  sidebarOpen?: boolean;
 }
 
 const colorOptions = [
@@ -57,6 +58,8 @@ const colorOptions = [
   "#3b82f6",
   "#8b5cf6",
 ];
+
+const FAB_USED_KEY = "pdf-highlighter-fab-used";
 
 export function FloatingActions({
   highlightPen,
@@ -79,14 +82,37 @@ export function FloatingActions({
   onShapeColorChange,
   shapeStrokeWidth,
   onShapeWidthChange,
+  sidebarOpen = false,
 }: FloatingActionsProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [showPulse, setShowPulse] = useState(false);
+
+  // Check if user has used FAB before
+  useEffect(() => {
+    const hasUsed = localStorage.getItem(FAB_USED_KEY);
+    if (!hasUsed) {
+      setShowPulse(true);
+    }
+  }, []);
+
+  const handleFabClick = () => {
+    setIsOpen(!isOpen);
+    if (showPulse) {
+      setShowPulse(false);
+      localStorage.setItem(FAB_USED_KEY, "true");
+    }
+  };
 
   const isAnyModeActive = highlightPen || freetextMode || areaMode || drawingMode || !!shapeMode;
 
   return (
     <TooltipProvider>
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col-reverse items-end gap-3">
+      <div
+        className={cn(
+          "fixed bottom-6 z-50 flex flex-col-reverse items-end gap-3 transition-all duration-300",
+          sidebarOpen ? "right-[21.5rem]" : "right-6"
+        )}
+      >
         {/* Drawing options panel - shown when drawing mode is active */}
         {drawingMode && (
           <Card className="shadow-lg mb-2">
@@ -381,12 +407,14 @@ export function FloatingActions({
         <Button
           size="icon"
           className={cn(
-            "h-14 w-14 rounded-full shadow-lg transition-transform",
+            "h-14 w-14 rounded-full shadow-lg transition-all",
             isOpen && "rotate-45",
-            !isAnyModeActive && "bg-foreground text-background hover:bg-foreground/90"
+            !isAnyModeActive && "bg-foreground text-background hover:bg-foreground/90",
+            showPulse && !isOpen && "animate-pulse-ring"
           )}
           variant={isAnyModeActive ? "default" : "default"}
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={handleFabClick}
+          data-tour="fab-button"
         >
           {isOpen ? <X className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
         </Button>

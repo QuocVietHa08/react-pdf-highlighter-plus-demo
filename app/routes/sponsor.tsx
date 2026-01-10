@@ -12,6 +12,9 @@ import {
   Linkedin,
   ExternalLink,
   Rocket,
+  Check,
+  X,
+  Minus,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -51,6 +54,50 @@ const benefits = [
     description: "Sponsors get priority responses on GitHub issues and feature requests.",
   },
 ];
+
+interface ComparisonFeature {
+  feature: string;
+  reactPdfHighlighter: "yes" | "no" | "partial";
+  pspdfkit: "yes" | "no" | "partial";
+  pdftron: "yes" | "no" | "partial";
+  pdfjs: "yes" | "no" | "partial";
+}
+
+const comparisonData: ComparisonFeature[] = [
+  { feature: "Open Source", reactPdfHighlighter: "yes", pspdfkit: "no", pdftron: "no", pdfjs: "yes" },
+  { feature: "Free to Use", reactPdfHighlighter: "yes", pspdfkit: "no", pdftron: "no", pdfjs: "yes" },
+  { feature: "React Native Support", reactPdfHighlighter: "yes", pspdfkit: "yes", pdftron: "yes", pdfjs: "partial" },
+  { feature: "Text Highlighting", reactPdfHighlighter: "yes", pspdfkit: "yes", pdftron: "yes", pdfjs: "no" },
+  { feature: "Area Selection", reactPdfHighlighter: "yes", pspdfkit: "yes", pdftron: "yes", pdfjs: "no" },
+  { feature: "Freehand Drawing", reactPdfHighlighter: "yes", pspdfkit: "yes", pdftron: "yes", pdfjs: "no" },
+  { feature: "Shape Annotations", reactPdfHighlighter: "yes", pspdfkit: "yes", pdftron: "yes", pdfjs: "no" },
+  { feature: "Sticky Notes", reactPdfHighlighter: "yes", pspdfkit: "yes", pdftron: "yes", pdfjs: "no" },
+  { feature: "Image/Signature Embedding", reactPdfHighlighter: "yes", pspdfkit: "yes", pdftron: "yes", pdfjs: "no" },
+  { feature: "PDF Export with Annotations", reactPdfHighlighter: "yes", pspdfkit: "yes", pdftron: "yes", pdfjs: "no" },
+  { feature: "Dark Mode Support", reactPdfHighlighter: "yes", pspdfkit: "yes", pdftron: "yes", pdfjs: "partial" },
+  { feature: "Document Outline", reactPdfHighlighter: "yes", pspdfkit: "yes", pdftron: "yes", pdfjs: "yes" },
+  { feature: "Thumbnail Navigation", reactPdfHighlighter: "yes", pspdfkit: "yes", pdftron: "yes", pdfjs: "partial" },
+  { feature: "TypeScript Support", reactPdfHighlighter: "yes", pspdfkit: "yes", pdftron: "yes", pdfjs: "yes" },
+  { feature: "No License Key Required", reactPdfHighlighter: "yes", pspdfkit: "no", pdftron: "no", pdfjs: "yes" },
+  { feature: "Commercial Use", reactPdfHighlighter: "yes", pspdfkit: "yes", pdftron: "yes", pdfjs: "yes" },
+];
+
+const vendors = [
+  { key: "reactPdfHighlighter", name: "React PDF Highlighter Plus", highlight: true },
+  { key: "pspdfkit", name: "PSPDFKit", highlight: false },
+  { key: "pdftron", name: "Apryse (PDFTron)", highlight: false },
+  { key: "pdfjs", name: "PDF.js", highlight: false },
+];
+
+function FeatureIcon({ value }: { value: "yes" | "no" | "partial" }) {
+  if (value === "yes") {
+    return <Check className="h-5 w-5 text-green-500" />;
+  }
+  if (value === "no") {
+    return <X className="h-5 w-5 text-red-500" />;
+  }
+  return <Minus className="h-5 w-5 text-yellow-500" />;
+}
 
 export default function Sponsor() {
   return (
@@ -152,6 +199,136 @@ export default function Sponsor() {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          </div>
+
+          {/* Comparison Section */}
+          <div className="mb-16">
+            <h2 className="text-2xl font-bold text-center mb-2">
+              How We Compare
+            </h2>
+            <p className="text-center text-muted-foreground mb-8">
+              See how React PDF Highlighter Plus stacks up against other PDF solutions
+            </p>
+
+            <Card className="overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="text-left p-4 font-semibold">Feature</th>
+                      {vendors.map((vendor) => (
+                        <th
+                          key={vendor.key}
+                          className={`text-center p-4 font-semibold min-w-[120px] ${
+                            vendor.highlight ? "bg-primary/10" : ""
+                          }`}
+                        >
+                          <span className={vendor.highlight ? "text-primary" : ""}>
+                            {vendor.name}
+                          </span>
+                          {vendor.highlight && (
+                            <Badge variant="secondary" className="ml-2 text-xs">
+                              Ours
+                            </Badge>
+                          )}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {comparisonData.map((row, index) => (
+                      <tr
+                        key={row.feature}
+                        className={index % 2 === 0 ? "bg-background" : "bg-muted/30"}
+                      >
+                        <td className="p-4 font-medium">{row.feature}</td>
+                        {vendors.map((vendor) => (
+                          <td
+                            key={vendor.key}
+                            className={`text-center p-4 ${
+                              vendor.highlight ? "bg-primary/5" : ""
+                            }`}
+                          >
+                            <div className="flex justify-center">
+                              <FeatureIcon value={row[vendor.key as keyof ComparisonFeature] as "yes" | "no" | "partial"} />
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <CardContent className="pt-6 border-t">
+                <div className="flex flex-wrap gap-6 justify-center text-sm">
+                  <div className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-green-500" />
+                    <span>Full Support</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Minus className="h-4 w-4 text-yellow-500" />
+                    <span>Partial Support</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <X className="h-4 w-4 text-red-500" />
+                    <span>Not Supported</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Pricing comparison */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+              <Card className="border-2 border-primary">
+                <CardHeader className="pb-2">
+                  <Badge className="w-fit mb-2">Recommended</Badge>
+                  <CardTitle className="text-lg">React PDF Highlighter Plus</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold text-primary mb-2">Free</p>
+                  <p className="text-sm text-muted-foreground">
+                    Open source, MIT licensed. No hidden costs or license keys.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">PSPDFKit</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold mb-2">$$$</p>
+                  <p className="text-sm text-muted-foreground">
+                    Commercial license. Pricing starts at thousands per year.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">Apryse (PDFTron)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold mb-2">$$$</p>
+                  <p className="text-sm text-muted-foreground">
+                    Commercial license. Enterprise pricing model.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">PDF.js</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold mb-2">Free</p>
+                  <p className="text-sm text-muted-foreground">
+                    Open source viewer only. No annotation features built-in.
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           </div>
 

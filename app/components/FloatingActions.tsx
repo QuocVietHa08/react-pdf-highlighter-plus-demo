@@ -11,6 +11,7 @@ import {
   Circle,
   ArrowRight,
   RectangleHorizontal,
+  MousePointer2,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { Button } from "./ui/button";
@@ -47,6 +48,7 @@ interface FloatingActionsProps {
   shapeStrokeWidth: number;
   onShapeWidthChange: (width: number) => void;
   sidebarOpen?: boolean;
+  onExitAllModes: () => void;
 }
 
 const colorOptions = [
@@ -83,11 +85,16 @@ export function FloatingActions({
   shapeStrokeWidth,
   onShapeWidthChange,
   sidebarOpen = false,
+  onExitAllModes,
 }: FloatingActionsProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  // Initialize isOpen based on first-time user status (open by default for new users)
+  const [isOpen, setIsOpen] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !localStorage.getItem(FAB_USED_KEY);
+  });
   const [showPulse, setShowPulse] = useState(false);
 
-  // Check if user has used FAB before
+  // Check if user has used FAB before (for pulse animation)
   useEffect(() => {
     const hasUsed = localStorage.getItem(FAB_USED_KEY);
     if (!hasUsed) {
@@ -225,6 +232,26 @@ export function FloatingActions({
         {/* Action buttons - shown when FAB is open */}
         {isOpen && (
           <div className="flex flex-col-reverse gap-2">
+            {/* Cursor/Select - Exit all modes */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={!isAnyModeActive ? "default" : "outline"}
+                  size="icon"
+                  className="h-12 w-12 rounded-full shadow-md"
+                  onClick={() => {
+                    onExitAllModes();
+                    setIsOpen(false);
+                  }}
+                >
+                  <MousePointer2 className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                Select (exit annotation mode)
+              </TooltipContent>
+            </Tooltip>
+
             {/* Highlight Pen */}
             <Tooltip>
               <TooltipTrigger asChild>

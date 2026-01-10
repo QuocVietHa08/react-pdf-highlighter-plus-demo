@@ -13,6 +13,10 @@ import {
   Package,
   HelpCircle,
   Navigation,
+  MousePointer2,
+  Menu,
+  Linkedin,
+  Heart,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -80,6 +84,26 @@ const changelog: ChangelogEntry[] = [
           "Persisted state in localStorage",
         ],
       },
+      {
+        icon: Menu,
+        title: "FAB Opens by Default",
+        description: "Tools menu expanded on first visit for better discoverability",
+        items: [
+          "First-time users see all tools immediately",
+          "State remembered for returning users",
+          "Reduces confusion about the + button purpose",
+        ],
+      },
+      {
+        icon: MousePointer2,
+        title: "Cursor/Select Tool",
+        description: "New tool to exit annotation modes and return to normal cursor",
+        items: [
+          "Click to exit any active annotation mode",
+          "Shows as 'active' when no mode is selected",
+          "Solves confusion between arrow tool and cursor",
+        ],
+      },
     ],
     technical: [
       "Added `driver.js` library for guided tours",
@@ -87,6 +111,8 @@ const changelog: ChangelogEntry[] = [
       "Added `data-tour` attributes to key UI elements",
       "Added Driver.js theme overrides in app.css",
       "Restored FAB pulse animation with `animate-pulse-ring` class",
+      "FAB `isOpen` state now initialized from localStorage for first-time detection",
+      "Added `MousePointer2` cursor tool with `onExitAllModes` handler",
     ],
   },
   {
@@ -215,9 +241,21 @@ export default function Changelog() {
                 </div>
                 <span className="text-lg font-bold">React PDF Highlighter Plus</span>
               </Link>
+              <Badge variant="secondary" className="text-xs">
+                v1.1.3
+              </Badge>
             </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/docs">Docs</Link>
+              </Button>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/sponsor" className="flex items-center gap-1 text-pink-500 hover:text-pink-600">
+                  <Heart className="h-4 w-4" />
+                  <span className="hidden sm:inline">Sponsor</span>
+                </Link>
+              </Button>
               <Button variant="ghost" size="sm" asChild>
                 <a
                   href="https://github.com/QuocVietHa08/react-pdf-highlighter-plus"
@@ -349,20 +387,30 @@ export default function Changelog() {
               <div>
                 <p className="font-semibold">React PDF Highlighter Plus</p>
                 <p className="text-sm text-muted-foreground">
-                  Built with{" "}
+                  Created by{" "}
                   <a
-                    href="https://github.com/QuocVietHa08/react-pdf-highlighter-plus"
+                    href="https://www.linkedin.com/in/viethadev/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-foreground transition-colors underline-offset-4 hover:underline"
+                    className="hover:text-foreground transition-colors underline-offset-4 hover:underline font-medium"
                   >
-                    react-pdf-highlighter-plus
+                    Edward Ha
                   </a>
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" asChild>
+                <a
+                  href="https://www.linkedin.com/in/viethadev/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Creator's LinkedIn"
+                >
+                  <Linkedin className="h-5 w-5" />
+                </a>
+              </Button>
               <Button variant="ghost" size="icon" asChild>
                 <a
                   href="https://github.com/QuocVietHa08/react-pdf-highlighter-plus"

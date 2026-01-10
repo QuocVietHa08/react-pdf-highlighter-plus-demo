@@ -1,5 +1,6 @@
 import { Download, Minus, PanelLeftClose, PanelLeft, PanelRightClose, PanelRight, Plus, Upload, HelpCircle } from "lucide-react";
 import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
 import {
   Tooltip,
@@ -68,6 +69,9 @@ export function Header({
               <span className="text-xs font-bold text-primary-foreground">PDF</span>
             </div>
             <span className="text-sm font-semibold">Highlighter</span>
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-5">
+              v1.1.3
+            </Badge>
           </div>
         </div>
 

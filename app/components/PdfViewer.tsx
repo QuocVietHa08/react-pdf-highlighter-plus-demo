@@ -313,6 +313,14 @@ export function PdfViewer() {
     setShapeMode(null);
   };
 
+  const handleExitAllModes = useCallback(() => {
+    setHighlightPen(false);
+    setFreetextMode(false);
+    setAreaMode(false);
+    setDrawingMode(false);
+    setShapeMode(null);
+  }, []);
+
   const handleExportPdf = async () => {
     if (!url) return;
     console.log("Exporting PDF with annotations...");
@@ -576,6 +584,7 @@ export function PdfViewer() {
                   shapeStrokeWidth={shapeStrokeWidth}
                   onShapeWidthChange={setShapeStrokeWidth}
                   sidebarOpen={sidebarOpen}
+                  onExitAllModes={handleExitAllModes}
                 />
               </div>
 

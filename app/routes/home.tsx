@@ -20,6 +20,8 @@ import {
   Palette,
   Move,
   ZoomIn,
+  Linkedin,
+  Heart,
   type LucideIcon,
 } from "lucide-react";
 import { useState } from "react";
@@ -200,11 +202,23 @@ export default function Home() {
                 <FileText className="h-5 w-5 text-primary-foreground" />
               </div>
               <span className="text-lg font-bold">React PDF Highlighter Plus</span>
+              <Badge variant="secondary" className="text-xs">
+                v1.1.3
+              </Badge>
             </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />
               <Button variant="ghost" size="sm" asChild>
+                <Link to="/docs">Docs</Link>
+              </Button>
+              <Button variant="ghost" size="sm" asChild>
                 <Link to="/changelog">Changelog</Link>
+              </Button>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/sponsor" className="flex items-center gap-1 text-pink-500 hover:text-pink-600">
+                  <Heart className="h-4 w-4" />
+                  <span className="hidden sm:inline">Sponsor</span>
+                </Link>
               </Button>
               <Button variant="ghost" size="sm" asChild>
                 <a
@@ -600,20 +614,30 @@ export default function Home() {
               <div>
                 <p className="font-semibold">React PDF Highlighter Plus</p>
                 <p className="text-sm text-muted-foreground">
-                  Built with{" "}
+                  Created by{" "}
                   <a
-                    href="https://github.com/QuocVietHa08/react-pdf-highlighter-plus"
+                    href="https://www.linkedin.com/in/viethadev/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-foreground transition-colors underline-offset-4 hover:underline"
+                    className="hover:text-foreground transition-colors underline-offset-4 hover:underline font-medium"
                   >
-                    react-pdf-highlighter-plus
+                    Edward Ha
                   </a>
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" asChild>
+                <a
+                  href="https://www.linkedin.com/in/viethadev/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Creator's LinkedIn"
+                >
+                  <Linkedin className="h-5 w-5" />
+                </a>
+              </Button>
               <Button variant="ghost" size="icon" asChild>
                 <a
                   href="https://github.com/QuocVietHa08/react-pdf-highlighter-plus"

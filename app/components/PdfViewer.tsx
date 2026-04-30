@@ -29,14 +29,6 @@ import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Separator } from "./ui/separator";
 
-// Set up PDF.js worker dynamically
-if (typeof window !== "undefined") {
-  import("pdfjs-dist").then((pdfjs) => {
-    // Use the exact version to avoid API/Worker version mismatch
-    pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs`;
-  });
-}
-
 const SAMPLE_PDF_URL = "https://arxiv.org/pdf/2203.11115";
 
 const getNextId = () => String(Math.random()).slice(2);
@@ -80,6 +72,8 @@ export function PdfViewer() {
   const [scrolledToHighlightId, setScrolledToHighlightId] = useState<string | null>(null);
   // Left panel state
   const [leftPanelOpen, setLeftPanelOpen] = useState<boolean>(true);
+  // PDF search state
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Theme integration
   const effectiveTheme = useEffectiveTheme();
@@ -90,7 +84,7 @@ export function PdfViewer() {
       mode: effectiveTheme,
       containerBackgroundColor:
         effectiveTheme === "dark" ? "hsl(240 10% 3.9%)" : "hsl(240 4.8% 95.9%)",
-      darkModeInversionIntensity: 0.87,
+      darkModeInvertIntensity: 0.87,
       scrollbarThumbColor:
         effectiveTheme === "dark" ? "hsl(240 5% 50%)" : "hsl(240 3.8% 70%)",
       scrollbarTrackColor:
@@ -358,6 +352,27 @@ export function PdfViewer() {
     setPdfScaleValue(Math.max(currentScale - 0.25, 0.5));
   };
 
+  const handleSearch = useCallback(() => {
+    const query = searchQuery.trim();
+
+    if (!highlighterUtilsRef.current) return;
+
+    if (!query) {
+      highlighterUtilsRef.current.clearSearch();
+      return;
+    }
+
+    highlighterUtilsRef.current.search(query, {
+      highlightAll: true,
+      caseSensitive: false,
+    });
+  }, [searchQuery]);
+
+  const handleSearchClear = useCallback(() => {
+    setSearchQuery("");
+    highlighterUtilsRef.current?.clearSearch();
+  }, []);
+
   const getHighlightById = useCallback((id: string) => {
     return highlights.find((highlight) => highlight.id === id);
   }, [highlights]);
@@ -498,6 +513,12 @@ export function PdfViewer() {
         pdfScaleValue={pdfScaleValue}
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
+        searchQuery={searchQuery}
+        onSearchQueryChange={setSearchQuery}
+        onSearchSubmit={handleSearch}
+        onSearchNext={() => highlighterUtilsRef.current?.findNext()}
+        onSearchPrevious={() => highlighterUtilsRef.current?.findPrevious()}
+        onSearchClear={handleSearchClear}
         onExportPdf={handleExportPdf}
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}

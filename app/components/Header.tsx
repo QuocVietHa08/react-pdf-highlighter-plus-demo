@@ -1,4 +1,18 @@
-import { Download, Minus, PanelLeftClose, PanelLeft, PanelRightClose, PanelRight, Plus, Upload, HelpCircle } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Download,
+  HelpCircle,
+  Minus,
+  PanelLeft,
+  PanelLeftClose,
+  PanelRight,
+  PanelRightClose,
+  Plus,
+  Search,
+  Upload,
+  X,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
@@ -14,6 +28,12 @@ interface HeaderProps {
   pdfScaleValue: number | undefined;
   onZoomIn: () => void;
   onZoomOut: () => void;
+  searchQuery: string;
+  onSearchQueryChange: (query: string) => void;
+  onSearchSubmit: () => void;
+  onSearchNext: () => void;
+  onSearchPrevious: () => void;
+  onSearchClear: () => void;
   onExportPdf: () => void;
   sidebarOpen: boolean;
   onToggleSidebar: () => void;
@@ -27,6 +47,12 @@ export function Header({
   pdfScaleValue,
   onZoomIn,
   onZoomOut,
+  searchQuery,
+  onSearchQueryChange,
+  onSearchSubmit,
+  onSearchNext,
+  onSearchPrevious,
+  onSearchClear,
   onExportPdf,
   sidebarOpen,
   onToggleSidebar,
@@ -70,7 +96,7 @@ export function Header({
             </div>
             <span className="text-sm font-semibold">Highlighter</span>
             <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-5">
-              v1.1.3
+              v1.1.4
             </Badge>
           </div>
         </div>
@@ -91,6 +117,71 @@ export function Header({
               <Separator orientation="vertical" className="h-6" />
             </>
           )}
+
+          {/* PDF search controls */}
+          <form
+            className="hidden min-w-52 items-center rounded-md border bg-muted/50 md:flex"
+            onSubmit={(event) => {
+              event.preventDefault();
+              onSearchSubmit();
+            }}
+          >
+            <Search className="ml-2 h-4 w-4 text-muted-foreground" />
+            <input
+              value={searchQuery}
+              onChange={(event) => onSearchQueryChange(event.target.value)}
+              placeholder="Search PDF"
+              className="h-8 min-w-0 flex-1 bg-transparent px-2 text-sm outline-none placeholder:text-muted-foreground"
+            />
+            {searchQuery && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={onSearchClear}
+                    className="h-8 w-8 rounded-none"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Clear search</TooltipContent>
+              </Tooltip>
+            )}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={onSearchPrevious}
+                  className="h-8 w-8 rounded-none border-l"
+                  disabled={!searchQuery}
+                >
+                  <ChevronUp className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Previous result</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={onSearchNext}
+                  className="h-8 w-8 rounded-l-none"
+                  disabled={!searchQuery}
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Next result</TooltipContent>
+            </Tooltip>
+          </form>
+
+          <Separator orientation="vertical" className="hidden h-6 md:block" />
 
           {/* Zoom controls */}
           <div className="flex items-center rounded-md border bg-muted/50" data-tour="zoom-controls">

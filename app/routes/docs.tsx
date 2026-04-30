@@ -1553,7 +1553,7 @@ export default function Docs() {
                 <span className="font-bold hidden sm:inline">React PDF Highlighter Plus</span>
               </Link>
               <Badge variant="secondary" className="text-xs hidden sm:inline-flex">
-                v1.1.3
+                v1.1.4
               </Badge>
             </div>
 

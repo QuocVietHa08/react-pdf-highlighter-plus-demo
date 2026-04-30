@@ -51,6 +51,7 @@ export function HighlightContainer({
         highlight={highlight}
         highlightColor={highlight.highlightColor}
         highlightStyle={highlight.highlightStyle}
+        copyText={highlight.content?.text}
         onStyleChange={(style) => {
           editHighlight(highlight.id, style);
         }}
@@ -70,6 +71,7 @@ export function HighlightContainer({
         backgroundColor={highlight.backgroundColor}
         fontSize={highlight.fontSize}
         fontFamily={highlight.fontFamily}
+        compact
         onChange={(boundingRect) => {
           editHighlight(highlight.id, {
             position: {
@@ -198,6 +200,7 @@ export function HighlightContainer({
         isScrolledTo={isScrolledTo}
         highlight={highlight}
         highlightColor={highlight.highlightColor}
+        copyText={highlight.content?.text}
         onStyleChange={(style) => {
           editHighlight(highlight.id, style);
         }}

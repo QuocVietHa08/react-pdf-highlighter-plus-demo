@@ -151,7 +151,7 @@ export function FloatingActions({
                   max={10}
                   step={1}
                   value={[drawingStrokeWidth]}
-                  onValueChange={(value) => onDrawingWidthChange(value[0])}
+                  onValueChange={(value: number[]) => onDrawingWidthChange(value[0])}
                   className="w-40"
                 />
               </div>
@@ -221,7 +221,7 @@ export function FloatingActions({
                   max={6}
                   step={1}
                   value={[shapeStrokeWidth]}
-                  onValueChange={(value) => onShapeWidthChange(value[0])}
+                  onValueChange={(value: number[]) => onShapeWidthChange(value[0])}
                   className="w-40"
                 />
               </div>

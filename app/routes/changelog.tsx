@@ -17,6 +17,7 @@ import {
   Menu,
   Linkedin,
   Heart,
+  Search,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -48,6 +49,38 @@ interface ChangelogEntry {
 }
 
 const changelog: ChangelogEntry[] = [
+  {
+    version: "1.2.1",
+    date: "2026-04-30",
+    title: "React PDF Highlighter Plus v1.1.4",
+    features: [
+      {
+        icon: Package,
+        title: "Package Update",
+        description: "Updated react-pdf-highlighter-plus to v1.1.4",
+        items: [
+          "Uses the package-provided PDF.js worker by default",
+          "Adopts the renamed dark mode intensity option",
+          "Passes copy text into text and area highlight toolbars",
+        ],
+      },
+      {
+        icon: Search,
+        title: "PDF Search",
+        description: "Added document search powered by the highlighter utilities",
+        items: [
+          "Search all PDF text from the viewer header",
+          "Navigate next and previous matches",
+          "Clear active search highlights",
+        ],
+      },
+    ],
+    technical: [
+      "Updated `react-pdf-highlighter-plus` from v1.1.3 to v1.1.4",
+      "Removed manual `pdfjs.GlobalWorkerOptions.workerSrc` setup",
+      "Added `PdfHighlighterUtils.search`, `findNext`, `findPrevious`, and `clearSearch` integration",
+    ],
+  },
   {
     version: "1.2.0",
     date: "2026-01-10",
@@ -242,7 +275,7 @@ export default function Changelog() {
                 <span className="text-lg font-bold">React PDF Highlighter Plus</span>
               </Link>
               <Badge variant="secondary" className="text-xs">
-                v1.1.3
+                v1.1.4
               </Badge>
             </div>
             <div className="flex items-center gap-2">

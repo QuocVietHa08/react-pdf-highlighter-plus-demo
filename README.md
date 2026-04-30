@@ -162,6 +162,14 @@ Build and deploy the `build/client` directory to any static hosting:
 
 ## Changelog
 
+### v1.2.1 (2026-04-30)
+
+**Package Update:**
+- Updated `react-pdf-highlighter-plus` to v1.1.4
+- Added PDF search controls using the new highlighter search utilities
+- Removed manual PDF.js worker setup so the package-provided worker is used
+- Passed copy text into text and area highlight toolbars
+
 ### v1.1.1 (2026-01-04)
 
 **Bug Fix:**

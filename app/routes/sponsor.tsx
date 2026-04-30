@@ -114,7 +114,7 @@ export default function Sponsor() {
                 <span className="text-lg font-bold">React PDF Highlighter Plus</span>
               </Link>
               <Badge variant="secondary" className="text-xs">
-                v1.1.3
+                v1.1.4
               </Badge>
             </div>
             <div className="flex items-center gap-2">

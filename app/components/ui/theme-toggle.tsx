@@ -1,81 +1,27 @@
-import { Sun, Moon, Monitor } from "lucide-react";
-import { Button } from "./button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-} from "./dropdown-menu";
-import { useThemeStore, type Theme, type ColorTheme } from "~/store/themeStore";
-import { cn } from "~/lib/utils";
+import { Sun, Moon } from "lucide-react";
+import { useThemeStore } from "~/store/themeStore";
 
-const colorThemes: { value: ColorTheme; label: string; color: string }[] = [
-  { value: "blue", label: "Blue", color: "bg-blue-500" },
-  { value: "orange", label: "Orange", color: "bg-orange-500" },
-  { value: "yellow", label: "Yellow", color: "bg-yellow-500" },
-  { value: "green", label: "Green", color: "bg-green-500" },
-  { value: "purple", label: "Purple", color: "bg-purple-500" },
-  { value: "rose", label: "Rose", color: "bg-rose-500" },
-];
-
+/**
+ * Simple dark/light toggle matching Library.dc.html.
+ * "system" is treated as its resolved value, then flipped to an explicit theme.
+ */
 export function ThemeToggle() {
-  const { theme, colorTheme, setTheme, setColorTheme } = useThemeStore();
+  const { theme, toggleTheme } = useThemeStore();
+
+  const isDark =
+    theme === "dark" ||
+    (theme === "system" &&
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches);
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40">
-        <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-          Mode
-        </DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={() => setTheme("light")}
-          className={cn(theme === "light" && "bg-accent")}
-        >
-          <Sun className="mr-2 h-4 w-4" />
-          Light
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => setTheme("dark")}
-          className={cn(theme === "dark" && "bg-accent")}
-        >
-          <Moon className="mr-2 h-4 w-4" />
-          Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => setTheme("system")}
-          className={cn(theme === "system" && "bg-accent")}
-        >
-          <Monitor className="mr-2 h-4 w-4" />
-          System
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-          Color
-        </DropdownMenuLabel>
-        <div className="grid grid-cols-6 gap-1 px-2 py-1.5">
-          {colorThemes.map((ct) => (
-            <button
-              key={ct.value}
-              onClick={() => setColorTheme(ct.value)}
-              className={cn(
-                "h-5 w-5 rounded-full transition-transform hover:scale-110",
-                ct.color,
-                colorTheme === ct.value && "ring-2 ring-offset-2 ring-offset-background ring-foreground"
-              )}
-              title={ct.label}
-            />
-          ))}
-        </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <button
+      type="button"
+      onClick={toggleTheme}
+      aria-label="Toggle theme"
+      className="inline-flex h-8.5 w-8.5 items-center justify-center rounded-lg border border-line2 bg-bg2 text-foreground transition-colors hover:bg-secondary"
+    >
+      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-3.75 w-3.75" />}
+    </button>
   );
 }

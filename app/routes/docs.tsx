@@ -24,12 +24,11 @@ import {
   Terminal,
   Search,
   LinkedinIcon,
-  Heart,
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "~/components/ui/button";
-import { Badge } from "~/components/ui/badge";
-import { ThemeToggle } from "~/components/ui/theme-toggle";
+import { SiteNav } from "~/components/SiteNav";
+import { SiteFooter } from "~/components/SiteFooter";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import {
   CommandDialog,
@@ -62,7 +61,12 @@ interface DocSection {
   }[];
 }
 
-function CodeBlock({ code, language = "bash", filename }: { code: string; language?: string; filename?: string }) {
+/**
+ * Code window matching the home page's CodePanel — always-dark "screenshot"
+ * with traffic-light dots, a filename title bar, and the design's mono font.
+ * Reads as a product shot in both light and dark site themes.
+ */
+function CodeBlock({ code, filename }: { code: string; language?: string; filename?: string }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -72,26 +76,35 @@ function CodeBlock({ code, language = "bash", filename }: { code: string; langua
   };
 
   return (
-    <div className="relative group my-6 rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800">
-      {filename && (
-        <div className="flex items-center gap-2 px-4 py-2 bg-zinc-100 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
-          <Terminal className="h-3.5 w-3.5 text-zinc-500" />
-          <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">{filename}</span>
+    <div className="group relative my-6 overflow-hidden rounded-[14px] border border-line2 bg-[#0d0d11] shadow-[0_30px_60px_-34px_rgba(0,0,0,0.7)]">
+      {/* title bar — traffic lights + filename */}
+      <div className="flex items-center gap-2 border-b border-[#1f1f26] px-4 py-3">
+        <div className="flex gap-1.75">
+          {[0, 1, 2].map((i) => (
+            <span key={i} className="h-2.5 w-2.5 rounded-full bg-[#2e2e38]" />
+          ))}
         </div>
-      )}
-      <div className="relative">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute right-2 top-2 z-10 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-800/50 hover:bg-zinc-700/50 text-zinc-300"
+        {filename && (
+          <span className="ml-2 inline-flex items-center gap-1.5 font-mono text-[11.5px] text-[#6c6c78]">
+            <Terminal className="h-3 w-3" />
+            {filename}
+          </span>
+        )}
+        <button
           onClick={handleCopy}
+          aria-label="Copy code"
+          className="ml-auto inline-flex h-7 w-7 items-center justify-center rounded-md text-[#7c7c88] opacity-0 transition-all hover:bg-[#1c1c23] hover:text-[#cfcfd8] group-hover:opacity-100"
         >
-          {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
-        </Button>
-        <pre className="bg-zinc-950 dark:bg-zinc-900 text-zinc-100 p-4 overflow-x-auto text-sm leading-relaxed">
-          <code className="font-mono">{code}</code>
-        </pre>
+          {copied ? (
+            <Check className="h-4 w-4 text-[#ffe14d]" strokeWidth={2.4} />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
+        </button>
       </div>
+      <pre className="m-0 overflow-x-auto px-5 py-4.5 font-mono text-[12.5px] leading-[1.85] text-[#cfcfd8]">
+        <code>{code}</code>
+      </pre>
     </div>
   );
 }
@@ -152,7 +165,7 @@ function ListItem({ children }: { children: React.ReactNode }) {
 
 function InlineCode({ children }: { children: React.ReactNode }) {
   return (
-    <code className="px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-sm font-mono">
+    <code className="rounded-md border border-line2 bg-bg2 px-1.5 py-0.5 font-mono text-[0.85em] text-foreground">
       {children}
     </code>
   );
@@ -1530,80 +1543,44 @@ export default function Docs() {
   const nextItem = currentIndex < allItems.length - 1 ? allItems[currentIndex + 1] : null;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background font-sans text-foreground antialiased">
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14">
-            <div className="flex items-center gap-4">
-              {/* Mobile menu button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
+      <SiteNav
+        links={[
+          { label: "Changelog", to: "/changelog" },
+          { label: "Sponsor", to: "/sponsor" },
+        ]}
+        left={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+        }
+        right={
+          <button
+            onClick={() => setCommandOpen(true)}
+            className="relative mr-1 inline-flex h-9 items-center justify-start rounded-lg border border-line2 bg-bg2 px-3 text-sm font-normal text-muted-foreground md:w-40 lg:w-56"
+          >
+            <Search className="mr-2 h-4 w-4" />
+            <span className="hidden lg:inline-flex">Search docs...</span>
+            <span className="inline-flex lg:hidden">Search</span>
+            <kbd className="pointer-events-none absolute right-[0.3rem] top-1/2 hidden h-5 -translate-y-1/2 select-none items-center gap-1 rounded border border-line2 bg-background px-1.5 font-mono text-[10px] font-medium sm:flex">
+              <span className="text-xs">⌘</span>K
+            </kbd>
+          </button>
+        }
+      />
 
-              <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                  <FileText className="h-4 w-4 text-primary-foreground" />
-                </div>
-                <span className="font-bold hidden sm:inline">React PDF Highlighter Plus</span>
-              </Link>
-              <Badge variant="secondary" className="text-xs hidden sm:inline-flex">
-                v1.1.4
-              </Badge>
-            </div>
-
-            <div className="flex items-center gap-1">
-              {/* Search button */}
-              <Button
-                variant="outline"
-                className="relative h-8 w-full justify-start rounded-md bg-muted/50 text-sm font-normal text-muted-foreground shadow-none sm:pr-12 md:w-40 lg:w-64"
-                onClick={() => setCommandOpen(true)}
-              >
-                <Search className="mr-2 h-4 w-4" />
-                <span className="hidden lg:inline-flex">Search documentation...</span>
-                <span className="inline-flex lg:hidden">Search...</span>
-                <kbd className="pointer-events-none absolute right-[0.3rem] top-[0.3rem] hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-                  <span className="text-xs">⌘</span>K
-                </kbd>
-              </Button>
-              <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
-                <Link to="/changelog">Changelog</Link>
-              </Button>
-              <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
-                <Link to="/sponsor" className="flex items-center gap-1 text-pink-500 hover:text-pink-600">
-                  <Heart className="h-4 w-4" />
-                  Sponsor
-                </Link>
-              </Button>
-              <ThemeToggle />
-              <Button variant="ghost" size="icon" asChild>
-                <a
-                  href="https://github.com/QuocVietHa08/react-pdf-highlighter-plus"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Github className="h-5 w-5" />
-                </a>
-              </Button>
-              <Button size="sm" asChild className="hidden sm:inline-flex">
-                <Link to="/pdf-demo">Try Demo</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <div className="max-w-screen-2xl mx-auto pt-14">
+      <div className="dot-grid max-w-screen-2xl mx-auto pt-0">
         <div className="lg:flex">
           {/* Sidebar */}
           <aside
             className={cn(
-              "fixed inset-0 top-14 z-40 lg:sticky lg:top-14 lg:z-0 lg:block lg:w-72 lg:shrink-0 lg:self-start",
+              "fixed inset-0 top-16 z-40 lg:sticky lg:top-16 lg:z-0 lg:block lg:w-72 lg:shrink-0 lg:self-start",
               mobileMenuOpen ? "block" : "hidden"
             )}
           >
@@ -1616,7 +1593,7 @@ export default function Docs() {
             )}
 
             {/* Sidebar content */}
-            <div className="relative h-[calc(100vh-3.5rem)] w-72 bg-background border-r">
+            <div className="relative h-[calc(100vh-4rem)] w-72 bg-background border-r border-border">
               <ScrollArea className="h-full py-8 px-6">
                 <div className="space-y-8">
                   {sections.map((section) => (
@@ -1666,8 +1643,8 @@ export default function Docs() {
                 {/* Content */}
                 {currentItem && (
                   <article>
-                    <header className="mb-10 pb-8 border-b">
-                      <h1 className="text-4xl font-bold tracking-tight text-foreground">
+                    <header className="mb-10 pb-8 border-b border-border">
+                      <h1 className="font-display text-4xl font-semibold tracking-tight text-foreground">
                         {currentItem.title}
                       </h1>
                     </header>
@@ -1740,6 +1717,8 @@ export default function Docs() {
           ))}
         </CommandList>
       </CommandDialog>
+
+      <SiteFooter />
     </div>
   );
 }

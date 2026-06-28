@@ -1,118 +1,81 @@
+/* Design fonts — Library.dc.html identity (must precede all other rules) */
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
 /* PDF.js viewer styles (required for text selection) */
 @import "pdfjs-dist/web/pdf_viewer.css";
 
 @import "tailwindcss";
 
 @layer base {
+  /*
+   * Light theme — design palette:
+   * bg #fbfbf9 · bg2 #f4f4f1 · bg3 #fff · ink #16161a · muted #6a6a73
+   * line #e7e7e2 · line2 #d9d9d3 · hl #ffd60a (yellow) on ink #2a2400
+   */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --background: 60 20% 98%;        /* #fbfbf9 */
+    --foreground: 240 6% 9%;         /* #16161a */
+    --card: 0 0% 100%;               /* #ffffff (bg3) */
+    --card-foreground: 240 6% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --popover-foreground: 240 6% 9%;
+    --primary: 49 100% 52%;          /* #ffd60a */
+    --primary-foreground: 50 100% 8%;/* #2a2400 */
+    --secondary: 48 14% 95%;         /* #f4f4f1 (bg2) */
+    --secondary-foreground: 240 6% 9%;
+    --muted: 48 14% 95%;
+    --muted-foreground: 240 5% 43%;  /* #6a6a73 */
+    --accent: 48 14% 95%;
+    --accent-foreground: 240 6% 9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 0.5rem;
+    --border: 50 13% 90%;            /* #e7e7e2 (line) */
+    --input: 48 11% 84%;             /* #d9d9d3 (line2) */
+    --ring: 49 100% 52%;
+    --radius: 0.625rem;
+
+    /* design-specific extras */
+    --bg2: 48 14% 95%;               /* #f4f4f1 */
+    --bg3: 0 0% 100%;                /* #ffffff */
+    --line2: 48 11% 84%;             /* #d9d9d3 */
+    --faint: 240 5% 62%;             /* #9b9ba3 */
+    --hl-strong-foreground: 50 100% 8%;
+    --grid: rgba(0, 0, 0, 0.04);
   }
 
+  /*
+   * Dark theme — design palette:
+   * bg #0a0a0c · bg2 #101014 · bg3 #16161c · ink #f5f5f7 · ink2 #d3d3da
+   * muted #8e8e99 · faint #5a5a66 · line #1f1f26 · line2 #2c2c36 · hl #ffe14d
+   */
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --background: 240 8% 4%;         /* #0a0a0c */
+    --foreground: 240 9% 96%;        /* #f5f5f7 */
+    --card: 240 12% 6%;              /* #101014 (bg2) */
+    --card-foreground: 240 9% 96%;
+    --popover: 240 12% 6%;
+    --popover-foreground: 240 9% 96%;
+    --primary: 51 100% 74%;          /* #ffe14d */
+    --primary-foreground: 240 8% 4%; /* #0b0b0d */
+    --secondary: 240 14% 9%;         /* #16161c (bg3) */
+    --secondary-foreground: 240 9% 96%;
+    --muted: 240 14% 9%;
+    --muted-foreground: 240 6% 58%;  /* #8e8e99 */
+    --accent: 240 14% 9%;
+    --accent-foreground: 240 9% 96%;
+    --destructive: 0 62.8% 40%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-  }
+    --border: 240 12% 13%;           /* #1f1f26 (line) */
+    --input: 240 11% 19%;            /* #2c2c36 (line2) */
+    --ring: 51 100% 74%;
 
-  /* Color Themes - Blue (default) */
-  .theme-blue {
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --ring: 221.2 83.2% 53.3%;
-  }
-  .dark.theme-blue {
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-  }
-
-  /* Color Themes - Orange */
-  .theme-orange {
-    --primary: 24.6 95% 53.1%;
-    --primary-foreground: 60 9.1% 97.8%;
-    --ring: 24.6 95% 53.1%;
-  }
-  .dark.theme-orange {
-    --primary: 20.5 90.2% 48.2%;
-    --primary-foreground: 60 9.1% 97.8%;
-  }
-
-  /* Color Themes - Yellow */
-  .theme-yellow {
-    --primary: 47.9 95.8% 53.1%;
-    --primary-foreground: 26 83.3% 14.1%;
-    --ring: 47.9 95.8% 53.1%;
-  }
-  .dark.theme-yellow {
-    --primary: 47.9 95.8% 53.1%;
-    --primary-foreground: 26 83.3% 14.1%;
-  }
-
-  /* Color Themes - Green */
-  .theme-green {
-    --primary: 142.1 76.2% 36.3%;
-    --primary-foreground: 355.7 100% 97.3%;
-    --ring: 142.1 76.2% 36.3%;
-  }
-  .dark.theme-green {
-    --primary: 142.1 70.6% 45.3%;
-    --primary-foreground: 144.9 80.4% 10%;
-  }
-
-  /* Color Themes - Purple */
-  .theme-purple {
-    --primary: 262.1 83.3% 57.8%;
-    --primary-foreground: 210 40% 98%;
-    --ring: 262.1 83.3% 57.8%;
-  }
-  .dark.theme-purple {
-    --primary: 263.4 70% 50.4%;
-    --primary-foreground: 210 40% 98%;
-  }
-
-  /* Color Themes - Rose */
-  .theme-rose {
-    --primary: 346.8 77.2% 49.8%;
-    --primary-foreground: 355.7 100% 97.3%;
-    --ring: 346.8 77.2% 49.8%;
-  }
-  .dark.theme-rose {
-    --primary: 346.8 77.2% 49.8%;
-    --primary-foreground: 355.7 100% 97.3%;
+    /* design-specific extras */
+    --bg2: 240 12% 6%;               /* #101014 */
+    --bg3: 240 14% 9%;               /* #16161c */
+    --line2: 240 11% 19%;            /* #2c2c36 */
+    --faint: 240 8% 38%;             /* #5a5a66 */
+    --hl-strong-foreground: 240 8% 4%;
+    --grid: rgba(255, 255, 255, 0.035);
   }
 }
 
@@ -124,7 +87,37 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+  ::selection {
+    background: #ffe14d;
+    color: #0b0b0d;
+  }
 }
+
+/* Library landing — dot-grid backdrop + animations (from Library.dc.html) */
+.dot-grid {
+  background-image: radial-gradient(circle at 1px 1px, var(--grid) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.animate-float-y { animation: floatY 6s ease-in-out infinite; }
+.animate-pulse-dot { animation: pulseDot 2.4s ease-in-out infinite; }
+
+.feat-tile {
+  transition: border-color 0.25s ease, transform 0.25s ease, background 0.25s ease;
+}
+.feat-tile:hover {
+  transform: translateY(-3px);
+  border-color: hsl(var(--line2));
+}
+.navlink:hover { color: hsl(var(--foreground)) !important; }
 
 /* FAB pulse animation for first-time visitors */
 @keyframes pulse-ring {
@@ -207,8 +200,15 @@
 }
 
 @theme {
-  --font-sans: "Geist Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* design-specific surface tokens */
+  --color-bg2: hsl(var(--bg2));
+  --color-bg3: hsl(var(--bg3));
+  --color-line2: hsl(var(--line2));
+  --color-faint: hsl(var(--faint));
 
   /* shadcn color tokens */
   --color-background: hsl(var(--background));

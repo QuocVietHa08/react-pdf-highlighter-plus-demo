@@ -3,669 +3,627 @@ import type { Route } from "./+types/home";
 import {
   Highlighter,
   StickyNote,
-  Image,
   Pencil,
   Shapes,
   Download,
   ArrowRight,
-  GithubIcon,
   FileText,
-  Sparkles,
-  Lock,
-  Cpu,
-  Copy,
-  Check,
+  Image as ImageIcon,
+  Signature,
+  ShieldCheck,
+  Search,
   Code2,
-  BookOpen,
-  Palette,
-  Move,
-  ZoomIn,
-  Linkedin,
-  Heart,
+  MessageSquare,
+  Check,
+  Copy,
   type LucideIcon,
 } from "lucide-react";
 import { useState } from "react";
-import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Badge } from "~/components/ui/badge";
-import { Separator } from "~/components/ui/separator";
-import { ThemeToggle } from "~/components/ui/theme-toggle";
+import { SiteNav } from "~/components/SiteNav";
+import { SiteFooter } from "~/components/SiteFooter";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "React PDF Highlighter Plus - Open Source PDF Annotation Tool" },
+    { title: "react-pdf-highlighter-plus — The annotation layer your PDF viewer is missing" },
     {
       name: "description",
       content:
-        "A powerful open source PDF annotation tool built with React and react-pdf-highlighter-plus. Add highlights, notes, drawings, shapes, and more.",
+        "Highlights, sticky notes, freehand drawing, shapes, signatures, and flattened export — a headless, fully-typed React toolkit on top of PDF.js. Every byte stays in the browser.",
     },
   ];
 }
 
+/* ── markup-toolkit chips (big bento tile) ── */
+const toolkit: { icon: LucideIcon; label: string; accent?: boolean }[] = [
+  { icon: Highlighter, label: "Highlight", accent: true },
+  { icon: StickyNote, label: "Note" },
+  { icon: Pencil, label: "Draw" },
+  { icon: Shapes, label: "Shapes" },
+  { icon: ImageIcon, label: "Image" },
+  { icon: Signature, label: "Sign" },
+];
+
+/* ── small bento tiles ── */
 interface Feature {
+  n: string;
   icon: LucideIcon;
   title: string;
   description: string;
 }
-
 const features: Feature[] = [
   {
-    icon: Highlighter,
-    title: "Text Highlighting",
-    description: "Select and highlight text passages with customizable colors. Positions stored in viewport-independent coordinates.",
-  },
-  {
-    icon: StickyNote,
-    title: "Freetext Notes",
-    description: "Create draggable, editable sticky notes with styling options. Click to edit, drag to reposition.",
-  },
-  {
-    icon: Image,
-    title: "Images & Signatures",
-    description: "Upload images or draw signatures with mouse/touch. Drag to reposition, resize with aspect ratio preservation.",
-  },
-  {
-    icon: Pencil,
-    title: "Freehand Drawing",
-    description: "Draw directly on PDFs with customizable stroke color and width. Stored as PNG for export compatibility.",
-  },
-  {
-    icon: Shapes,
-    title: "Shape Annotations",
-    description: "Add rectangles, circles, and arrows. Hold Alt while dragging for area selection on non-text content.",
-  },
-  {
+    n: "02",
     icon: Download,
-    title: "PDF Export",
-    description: "Export annotated documents with all highlights permanently embedded. Progress callback included.",
-  },
-];
-
-const advancedFeatures = [
-  {
-    icon: ZoomIn,
-    title: "Full Zoom Support",
-    description: "Zoom in/out while maintaining annotation positions with viewport-independent coordinate storage.",
+    title: "Flatten & export",
+    description:
+      "Burn every annotation permanently into a downloadable PDF — with a per-page progress callback.",
   },
   {
-    icon: Palette,
-    title: "Fully Customizable",
-    description: "Exposed styling on all components. Extend the Highlight interface with custom properties.",
+    n: "03",
+    icon: ShieldCheck,
+    title: "Private by default",
+    description:
+      "100% client-side. Documents never touch a server — built for legal, medical and internal files.",
   },
   {
-    icon: Move,
-    title: "Draggable Elements",
-    description: "Notes, images, and signatures can be repositioned by dragging. Toolbar appears on hover.",
+    n: "04",
+    icon: Search,
+    title: "Zoom-stable",
+    description:
+      "Positions stored in viewport-independent coordinates — pinned through every zoom level.",
   },
   {
+    n: "05",
     icon: Code2,
-    title: "TypeScript First",
-    description: "Full TypeScript support with comprehensive type definitions for all components and utilities.",
+    title: "Typed end to end",
+    description:
+      "Full TypeScript definitions. Extend the Highlight interface with your own custom fields.",
   },
 ];
 
-const stats = [
-  { value: "6+", label: "Annotation Types" },
-  { value: "100%", label: "Client-Side" },
-  { value: "MIT", label: "Licensed" },
-  { value: "TS", label: "TypeScript" },
+interface Release {
+  version: string;
+  date: string;
+  title: string;
+  description: string;
+  current?: boolean;
+}
+const releases: Release[] = [
+  {
+    version: "v1.2.1",
+    date: "Apr 30, 2026",
+    title: "PDF search controls",
+    description:
+      "In-document search via the new highlighter search utilities, plus copy-text in highlight toolbars.",
+    current: true,
+  },
+  {
+    version: "v1.1.0",
+    date: "Jan 2, 2026",
+    title: "Dual-panel layout",
+    description:
+      "Outline & page thumbnails on the left, highlights on the right, with theme-aware page inversion.",
+  },
+  {
+    version: "v1.0.0",
+    date: "Initial",
+    title: "First public release",
+    description:
+      "Highlights, areas, notes, images, signatures, drawing, shapes, export & localStorage.",
+  },
 ];
 
-const techStack = [
-  { name: "React 19", variant: "default" as const },
-  { name: "TypeScript", variant: "secondary" as const },
-  { name: "PDF.js", variant: "outline" as const },
-  { name: "Tailwind CSS", variant: "default" as const },
-  { name: "shadcn/ui", variant: "secondary" as const },
-  { name: "Zustand", variant: "outline" as const },
+const anatomy = [
+  { name: "PdfLoader", note: "Loads the PDF document", indent: 0, accent: true },
+  { name: "PdfHighlighter", note: "Viewer + event listeners", indent: 22, accent: true },
+  { name: "…Container", note: "Renders each highlight", indent: 44, accent: false },
 ];
 
-const installCode = `npm install react-pdf-highlighter-plus`;
+const builtOn = ["React 19", "PDF.js", "TypeScript", "Zustand", "Tailwind CSS"];
 
-const importCode = `import "react-pdf-highlighter-plus/style/style.css";`;
-
-const basicExample = `import {
-  PdfLoader,
-  PdfHighlighter,
-  TextHighlight,
-  AreaHighlight,
-  useHighlightContainerContext,
-} from "react-pdf-highlighter-plus";
-
-function App() {
-  const [highlights, setHighlights] = useState([]);
-
-  return (
-    <PdfLoader document="https://example.com/doc.pdf">
-      {(pdfDocument) => (
-        <PdfHighlighter
-          pdfDocument={pdfDocument}
-          highlights={highlights}
-          enableAreaSelection={(e) => e.altKey}
-        >
-          <HighlightContainer />
-        </PdfHighlighter>
-      )}
-    </PdfLoader>
-  );
-}`;
-
-const exportExample = `import { exportPdf } from "react-pdf-highlighter-plus";
-
-const handleExport = async () => {
-  const pdfBytes = await exportPdf(pdfUrl, highlights, {
-    textHighlightColor: "rgba(255, 226, 143, 0.5)",
-    onProgress: (current, total) =>
-      console.log(\`\${current}/\${total} pages\`),
-  });
-
-  const blob = new Blob([pdfBytes], { type: "application/pdf" });
-  const url = URL.createObjectURL(blob);
-  // Download the file...
-};`;
-
-function CodeBlock({ code }: { code: string }) {
+function InstallButton() {
   const [copied, setCopied] = useState(false);
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(code);
+  const handleCopy = () => {
+    navigator.clipboard?.writeText("npm i react-pdf-highlighter-plus").catch(() => {});
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 1800);
   };
-
   return (
-    <div className="relative group">
-      <pre className="bg-muted/50 border rounded-lg p-4 overflow-x-auto text-sm font-mono">
-        <code>{code}</code>
-      </pre>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-        onClick={handleCopy}
-      >
-        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-      </Button>
-    </div>
+    <button
+      onClick={handleCopy}
+      className="inline-flex items-center gap-[11px] rounded-[10px] border border-line2 bg-bg2 px-[17px] py-3 font-mono text-[13.5px] text-foreground"
+    >
+      <span className="text-faint">$</span> npm i react-pdf-highlighter-plus
+      {copied ? (
+        <Check className="h-[15px] w-[15px] text-primary" strokeWidth={2.4} />
+      ) : (
+        <Copy className="h-[15px] w-[15px] text-faint" />
+      )}
+    </button>
   );
 }
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b bg-background/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-                <FileText className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="text-lg font-bold">React PDF Highlighter Plus</span>
-              <Badge variant="secondary" className="text-xs">
-                v1.1.3
-              </Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/docs">Docs</Link>
-              </Button>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/changelog">Changelog</Link>
-              </Button>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/sponsor" className="flex items-center gap-1 text-pink-500 hover:text-pink-600">
-                  <Heart className="h-4 w-4" />
-                  <span className="hidden sm:inline">Sponsor</span>
-                </Link>
-              </Button>
-              <Button variant="ghost" size="sm" asChild>
-                <a
-                  href="https://github.com/QuocVietHa08/react-pdf-highlighter-plus"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2"
-                >
-                  <GithubIcon className="h-5 w-5" />
-                  <span className="hidden sm:inline">GitHub</span>
-                </a>
-              </Button>
-              <Button asChild>
-                <Link to="/pdf-demo" className="flex items-center gap-2">
-                  Try Demo
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="dot-grid min-h-screen bg-background font-sans text-base leading-relaxed text-foreground antialiased">
+      {/* ===== NAV ===== */}
+      <SiteNav
+        links={[
+          { label: "Features", to: "/#features" },
+          { label: "Docs", to: "/docs" },
+          { label: "Changelog", to: "/changelog" },
+          { label: "Sponsor", to: "/sponsor" },
+        ]}
+      />
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-4 overflow-hidden">
-        {/* Background gradient effects */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+      {/* ===== HERO ===== */}
+      <header className="relative mx-auto max-w-[1220px] overflow-hidden px-8 pb-6 pt-16 text-center">
+        <div className="pointer-events-none absolute left-1/2 top-[-30px] h-60 w-[560px] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.13),transparent_70%)] blur-[30px]" />
+
+        <div className="relative mb-[26px] inline-flex items-center gap-[9px] rounded-full border border-line2 bg-bg2 py-[5px] pl-2.5 pr-3.5 font-mono text-xs text-muted-foreground">
+          <span className="animate-pulse-dot h-[7px] w-[7px] rounded-full bg-primary" />
+          react-pdf-highlighter-plus · v1.1.4
         </div>
 
-        <div className="relative max-w-5xl mx-auto text-center">
-          <Badge variant="secondary" className="mb-8">
-            <Sparkles className="h-3 w-3 mr-1" />
-            Powered by react-pdf-highlighter-plus
-          </Badge>
+        <h1 className="relative mx-auto mb-[22px] max-w-[15ex] font-display text-[64px] font-semibold leading-[1.03] tracking-[-0.03em]">
+          The{" "}
+          <span className="relative whitespace-nowrap">
+            <span className="relative z-[1]">annotation layer</span>
+            <span className="absolute -left-1 -right-1 bottom-[7px] z-0 h-[17px] -skew-x-[9deg] rounded-sm bg-primary" />
+          </span>{" "}
+          your PDF viewer is missing.
+        </h1>
 
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight mb-6">
-            <span>Modern</span>
-            <br />
-            <span className="text-primary">PDF Annotation</span>
-            <br />
-            <span>for React</span>
-          </h1>
+        <p className="relative mx-auto mb-8 max-w-[40em] text-[18.5px] leading-[1.6] text-muted-foreground">
+          Highlights, sticky notes, freehand drawing, shapes, signatures, and flattened export — a
+          headless, fully-typed React toolkit on top of PDF.js. Every byte stays in the browser.
+        </p>
 
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-            A feature-rich, headless PDF viewer and annotation library built on PDF.js.
-            Highlight text, add notes, draw shapes, embed images, and export annotated PDFs.
-            All processing happens in the browser.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Button size="lg" asChild>
-              <Link to="/pdf-demo" className="flex items-center gap-2">
-                Try the Demo
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-            </Button>
-            <Button variant="outline" size="lg" asChild>
-              <a
-                href="https://github.com/QuocVietHa08/react-pdf-highlighter-plus"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2"
-              >
-                <GithubIcon className="h-5 w-5" />
-                View on GitHub
-              </a>
-            </Button>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-3xl mx-auto">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-primary">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
-              </div>
-            ))}
-          </div>
+        <div className="relative mb-[54px] flex flex-wrap justify-center gap-3">
+          <Link
+            to="/pdf-demo"
+            className="inline-flex items-center gap-2 rounded-[10px] bg-primary px-6 py-[13px] text-[15px] font-semibold text-primary-foreground"
+          >
+            Launch the live demo <ArrowRight className="h-4 w-4" strokeWidth={2.3} />
+          </Link>
+          <InstallButton />
         </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="py-20 px-4 border-t">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Everything you need for{" "}
-              <span className="text-primary">PDF annotations</span>
-            </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              A comprehensive set of annotation tools built for modern React applications.
-            </p>
-          </div>
+        <ProductWindow />
+      </header>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature) => (
-              <Card key={feature.title} className="group hover:border-primary/50 transition-colors">
-                <CardHeader>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 mb-2">
-                    <feature.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-lg">{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {feature.description}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+      {/* ===== TRUST STRIP ===== */}
+      <div className="mx-auto max-w-[1220px] px-8 pb-5 pt-11">
+        <div className="flex flex-wrap items-center justify-center gap-x-[30px] gap-y-2.5 text-[13px] text-faint">
+          <span className="font-mono text-[11px] tracking-[0.05em]">// BUILT ON</span>
+          {builtOn.map((t) => (
+            <span key={t} className="font-semibold text-muted-foreground">
+              {t}
+            </span>
+          ))}
         </div>
-      </section>
+      </div>
 
-      {/* Installation Section */}
-      <section className="py-20 px-4 border-t bg-muted/30">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Quick <span className="text-primary">Installation</span>
-            </h2>
-            <p className="text-muted-foreground">
-              Get started in minutes with npm or yarn
-            </p>
+      {/* ===== BENTO FEATURES ===== */}
+      <section id="features" className="mx-auto max-w-[1220px] px-8 pb-5 pt-16">
+        <div className="mb-10">
+          <div className="mb-3.5 font-mono text-xs tracking-[0.06em] text-primary">
+            // 01 — CAPABILITIES
           </div>
-
-          <div className="space-y-6">
-            <div>
-              <p className="text-sm font-medium mb-2">1. Install the package</p>
-              <CodeBlock code={installCode} />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium mb-2">2. Import the styles</p>
-              <CodeBlock code={importCode} />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium mb-2">3. Basic usage example</p>
-              <CodeBlock code={basicExample} />
-            </div>
-          </div>
-
-          <div className="mt-8 flex justify-center gap-4">
-            <Button variant="outline" asChild>
-              <a
-                href="https://quocvietha08.github.io/react-pdf-highlighter-plus/docs/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2"
-              >
-                <BookOpen className="h-4 w-4" />
-                Full Documentation
-              </a>
-            </Button>
-            <Button variant="outline" asChild>
-              <a
-                href="https://www.npmjs.com/package/react-pdf-highlighter-plus"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View on npm
-              </a>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Advanced Features */}
-      <section className="py-20 px-4 border-t">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Advanced <span className="text-primary">Capabilities</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {advancedFeatures.map((feature) => (
-              <Card key={feature.title}>
-                <CardContent className="flex gap-4 p-6">
-                  <div className="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                    <feature.icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-1">{feature.title}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {feature.description}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Export Section */}
-      <section className="py-20 px-4 border-t bg-muted/30">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              <span className="text-primary">Export</span> Annotated PDFs
-            </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              Embed all annotations permanently into downloadable PDF files.
-              Supports text highlights, area highlights, freetext notes, images, signatures, and drawings.
-            </p>
-          </div>
-
-          <CodeBlock code={exportExample} />
-        </div>
-      </section>
-
-      {/* Why Section */}
-      <section className="py-20 px-4 border-t">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <h2 className="text-3xl sm:text-4xl font-bold mb-8">
-                Why{" "}
-                <span className="text-primary">react-pdf-highlighter-plus</span>?
-              </h2>
-
-              <div className="space-y-6">
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center">
-                    <Sparkles className="h-6 w-6 text-green-600 dark:text-green-400" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold mb-1">Fully Open Source</h4>
-                    <p className="text-muted-foreground text-sm">
-                      MIT licensed and free to use in personal and commercial projects.
-                      No strings attached.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                    <Cpu className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold mb-1">Modern Stack</h4>
-                    <p className="text-muted-foreground text-sm">
-                      Built with the latest React, TypeScript, and PDF.js for
-                      optimal performance and developer experience.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                    <Lock className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold mb-1">Privacy First</h4>
-                    <p className="text-muted-foreground text-sm">
-                      All processing happens in the browser. Your documents
-                      never leave your device.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Built with</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {techStack.map((tech) => (
-                    <Badge key={tech.name} variant={tech.variant}>
-                      {tech.name}
-                    </Badge>
-                  ))}
-                </div>
-
-                <Separator className="my-6" />
-
-                <p className="text-sm text-muted-foreground mb-4">Get started with:</p>
-                <CodeBlock code="npm install react-pdf-highlighter-plus" />
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* API Overview */}
-      <section className="py-20 px-4 border-t bg-muted/30">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Component <span className="text-primary">Architecture</span>
-            </h2>
-          </div>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="space-y-4 font-mono text-sm">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline">PdfLoader</Badge>
-                  <span className="text-muted-foreground">Creates container to load PDF documents</span>
-                </div>
-                <div className="pl-6 border-l-2 border-muted">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">PdfHighlighter</Badge>
-                    <span className="text-muted-foreground">Provides viewer with event listeners</span>
-                  </div>
-                  <div className="pl-6 mt-4 border-l-2 border-muted">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">HighlightContainer</Badge>
-                      <span className="text-muted-foreground">User-defined, rendered per highlight</span>
-                    </div>
-                    <div className="pl-6 mt-4 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="default">TextHighlight</Badge>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="default">AreaHighlight</Badge>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="default">FreetextHighlight</Badge>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="default">ImageHighlight</Badge>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="default">DrawingHighlight</Badge>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <Separator className="my-6" />
-
-              <div className="space-y-3">
-                <h4 className="font-semibold">Context Hooks</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <code className="text-primary">usePdfHighlighterContext()</code>
-                    <p className="text-muted-foreground mt-1">
-                      Viewer utilities: scrollToHighlight, setTip, getCurrentSelection
-                    </p>
-                  </div>
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <code className="text-primary">useHighlightContainerContext()</code>
-                    <p className="text-muted-foreground mt-1">
-                      Per-highlight: highlight object, viewportToScaled, screenshot
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 px-4 border-t">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-5xl font-bold mb-6">
-            Ready to{" "}
-            <span className="text-primary">get started</span>?
+          <h2 className="m-0 max-w-[18ex] font-display text-[40px] font-semibold leading-[1.06] tracking-[-0.02em]">
+            Six annotation types. One coordinate system.
           </h2>
-          <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
-            Experience all the annotation features with our interactive demo.
-            Upload your own PDF or use our sample document.
-          </p>
-          <Button size="lg" className="text-lg px-10 py-6" asChild>
-            <Link to="/pdf-demo" className="flex items-center gap-2">
-              Launch Demo
-              <ArrowRight className="h-6 w-6" />
-            </Link>
-          </Button>
+        </div>
+
+        <div className="grid grid-cols-12 gap-3.5">
+          {/* A — big markup toolkit tile */}
+          <div className="feat-tile col-span-12 flex flex-col rounded-2xl border border-border bg-bg2 p-7 lg:col-span-7 lg:row-span-2">
+            <div className="mb-1.5 flex items-center gap-2.5">
+              <span className="font-mono text-[11px] text-faint">01</span>
+              <h3 className="m-0 font-display text-[23px] font-semibold">The full markup toolkit</h3>
+            </div>
+            <p className="m-0 mb-6 max-w-[38ex] text-[14.5px] text-muted-foreground">
+              Text highlights, draggable sticky notes, freehand ink, rectangles &amp; arrows, images
+              and hand-drawn signatures — each a first-class annotation with stable id, color and
+              comment.
+            </p>
+            <div className="mt-auto grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+              {toolkit.map((t) => (
+                <div
+                  key={t.label}
+                  className="flex items-center gap-[9px] rounded-[11px] border border-border bg-bg3 px-[13px] py-[11px]"
+                >
+                  <t.icon
+                    className={`h-4 w-4 ${t.accent ? "text-primary" : "text-foreground/80"}`}
+                    strokeWidth={t.accent ? 2 : 1.9}
+                  />
+                  <span className="text-[12.5px] font-medium">{t.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* B & C — wide tiles */}
+          {features.slice(0, 2).map((f) => (
+            <div
+              key={f.n}
+              className="feat-tile col-span-12 rounded-2xl border border-border bg-bg2 p-[26px] md:col-span-6 lg:col-span-5"
+            >
+              <div className="mb-3.5 flex items-center justify-between">
+                <f.icon className="h-[22px] w-[22px] text-primary" strokeWidth={1.9} />
+                <span className="font-mono text-[11px] text-faint">{f.n}</span>
+              </div>
+              <h3 className="m-0 mb-[7px] font-display text-[19px] font-semibold">{f.title}</h3>
+              <p className="m-0 text-[13.5px] text-muted-foreground">{f.description}</p>
+            </div>
+          ))}
+
+          {/* D & E — third-width tiles */}
+          {features.slice(2, 4).map((f) => (
+            <div
+              key={f.n}
+              className="feat-tile col-span-12 rounded-2xl border border-border bg-bg2 p-[26px] sm:col-span-6 lg:col-span-4"
+            >
+              <div className="mb-3.5 flex items-center justify-between">
+                <f.icon className="h-[22px] w-[22px] text-primary" strokeWidth={1.9} />
+                <span className="font-mono text-[11px] text-faint">{f.n}</span>
+              </div>
+              <h3 className="m-0 mb-[7px] font-display text-[19px] font-semibold">{f.title}</h3>
+              <p className="m-0 text-[13.5px] text-muted-foreground">{f.description}</p>
+            </div>
+          ))}
+
+          {/* F — accent tile */}
+          <div className="feat-tile col-span-12 rounded-2xl border border-primary bg-primary p-[26px] text-primary-foreground sm:col-span-6 lg:col-span-4">
+            <div className="mb-3.5 flex items-center justify-between">
+              <Code2 className="h-[22px] w-[22px]" strokeWidth={2} />
+              <span className="font-mono text-[11px] opacity-50">06</span>
+            </div>
+            <h3 className="m-0 mb-[7px] font-display text-[19px] font-semibold">Headless core</h3>
+            <p className="m-0 text-[13.5px] opacity-75">
+              Bring your own UI. A small tree of primitives you wire together however you like.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 px-4 border-t">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-                <FileText className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <div>
-                <p className="font-semibold">React PDF Highlighter Plus</p>
-                <p className="text-sm text-muted-foreground">
-                  Created by{" "}
-                  <a
-                    href="https://www.linkedin.com/in/viethadev/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-foreground transition-colors underline-offset-4 hover:underline font-medium"
-                  >
-                    Edward Ha
-                  </a>
-                </p>
-              </div>
+      {/* ===== ANATOMY / CODE ===== */}
+      <section className="mx-auto max-w-[1220px] px-8 py-16">
+        <div className="grid items-center gap-12 lg:grid-cols-[1fr_1.08fr]">
+          <div>
+            <div className="mb-3.5 font-mono text-xs tracking-[0.06em] text-primary">
+              // 02 — ANATOMY
             </div>
-
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" asChild>
-                <a
-                  href="https://www.linkedin.com/in/viethadev/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Creator's LinkedIn"
+            <h2 className="m-0 mb-[18px] font-display text-4xl font-semibold leading-[1.08] tracking-[-0.02em]">
+              A viewer in three composable parts.
+            </h2>
+            <p className="m-0 mb-[26px] max-w-[30ex] text-[15px] text-muted-foreground">
+              Loader fetches the document. Highlighter wires the events. Your container renders each
+              annotation. Context hooks expose everything else.
+            </p>
+            <div className="flex flex-col font-mono">
+              {anatomy.map((row, i) => (
+                <div
+                  key={row.name}
+                  className={`flex items-center gap-[11px] border-t border-border py-[13px] ${
+                    i === anatomy.length - 1 ? "border-b" : ""
+                  }`}
+                  style={{ paddingLeft: row.indent }}
                 >
-                  <Linkedin className="h-5 w-5" />
-                </a>
-              </Button>
-              <Button variant="ghost" size="icon" asChild>
-                <a
-                  href="https://github.com/QuocVietHa08/react-pdf-highlighter-plus"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <GithubIcon className="h-5 w-5" />
-                </a>
-              </Button>
-              <Button variant="ghost" size="icon" asChild>
-                <a
-                  href="https://www.npmjs.com/package/react-pdf-highlighter-plus"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Code2 className="h-5 w-5" />
-                </a>
-              </Button>
+                  <span
+                    className={`w-[108px] text-xs ${row.accent ? "text-primary" : "text-foreground/80"}`}
+                  >
+                    {row.name}
+                  </span>
+                  <span className="font-sans text-[13px] text-muted-foreground">{row.note}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          <Separator className="my-8" />
+          <CodePanel />
+        </div>
+      </section>
 
-          <div className="text-center text-sm text-muted-foreground">
-            Open source under MIT License
+      {/* ===== CHANGELOG ===== */}
+      <section id="changelog" className="mx-auto max-w-[1220px] px-8 pb-16 pt-6">
+        <div className="mb-8 flex items-end justify-between gap-6">
+          <div>
+            <div className="mb-3.5 font-mono text-xs tracking-[0.06em] text-primary">
+              // 03 — CHANGELOG
+            </div>
+            <h2 className="m-0 font-display text-4xl font-semibold leading-[1.08] tracking-[-0.02em]">
+              Shipped recently
+            </h2>
+          </div>
+          <Link
+            to="/changelog"
+            className="inline-flex items-center gap-[7px] text-sm font-semibold text-primary"
+          >
+            Full changelog <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.3} />
+          </Link>
+        </div>
+        <div className="grid gap-3.5 md:grid-cols-3">
+          {releases.map((r) => (
+            <div
+              key={r.version}
+              className="rounded-[14px] border border-border bg-bg2 p-[22px]"
+            >
+              <div className="mb-3 flex items-center gap-[9px]">
+                <span
+                  className={`rounded-[5px] px-2 py-0.5 font-mono text-[11px] font-semibold ${
+                    r.current
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-line2 bg-bg3 text-foreground"
+                  }`}
+                >
+                  {r.version}
+                </span>
+                <span className="text-[11px] text-faint">{r.date}</span>
+              </div>
+              <h3 className="m-0 mb-[7px] font-display text-[15.5px] font-semibold">{r.title}</h3>
+              <p className="m-0 text-[13px] leading-[1.55] text-muted-foreground">{r.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ===== CTA ===== */}
+      <section id="demo" className="mx-auto max-w-[1220px] px-8 pb-20 pt-5">
+        <div className="relative overflow-hidden rounded-[22px] border border-line2 bg-gradient-to-b from-bg2 to-background px-12 py-[72px] text-center">
+          <div className="pointer-events-none absolute left-1/2 top-[-60px] h-40 w-[480px] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.22),transparent_70%)] blur-[40px]" />
+          <h2 className="relative m-0 mb-4 font-display text-[46px] font-semibold leading-[1.05] tracking-[-0.02em]">
+            Drop a highlighter on your{" "}
+            <span className="relative whitespace-nowrap">
+              PDFs
+              <span className="absolute -left-[3px] -right-[3px] bottom-[5px] z-[-1] h-3.5 -skew-x-[9deg] bg-primary" />
+            </span>
+            .
+          </h2>
+          <p className="relative mx-auto mb-8 max-w-[34em] text-[17px] text-muted-foreground">
+            Upload your own document or use our sample. Annotate, then export a flattened copy — all
+            in the browser.
+          </p>
+          <div className="relative flex flex-wrap justify-center gap-3">
+            <Link
+              to="/pdf-demo"
+              className="inline-flex items-center gap-2 rounded-[10px] bg-primary px-[26px] py-3.5 text-[15px] font-semibold text-primary-foreground"
+            >
+              Launch the demo <ArrowRight className="h-4 w-4" strokeWidth={2.3} />
+            </Link>
+            <Link
+              to="/docs"
+              className="rounded-[10px] border border-line2 bg-bg3 px-[26px] py-3.5 text-[15px] font-semibold text-foreground"
+            >
+              Read the docs
+            </Link>
           </div>
         </div>
-      </footer>
+      </section>
+
+      {/* ===== FOOTER ===== */}
+      <SiteFooter />
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Product window — an "always dark" screenshot of the viewer. Fixed dark
+ * hexes on purpose so it reads as a product shot in both site themes.
+ * ───────────────────────────────────────────────────────────────────────── */
+function ProductWindow() {
+  return (
+    <div className="relative mx-auto max-w-[1040px] overflow-hidden rounded-[14px] border border-[#26262e] bg-[#0e0e12] text-left shadow-[0_40px_90px_-40px_rgba(0,0,0,0.85)]">
+      {/* title bar */}
+      <div className="flex items-center gap-3.5 border-b border-[#1f1f26] bg-[#101015] px-4 py-[11px]">
+        <div className="flex gap-[7px]">
+          {[0, 1, 2].map((i) => (
+            <span key={i} className="h-[11px] w-[11px] rounded-full bg-[#3a3a44]" />
+          ))}
+        </div>
+        <div className="flex flex-1 justify-center">
+          <div className="inline-flex items-center gap-2 rounded-[7px] border border-[#24242c] bg-[#16161c] px-[13px] py-1 font-mono text-[11.5px] text-[#7c7c88]">
+            <FileText className="h-[11px] w-[11px] text-[#ffe14d]" strokeWidth={2} />
+            attention-is-all-you-need.pdf
+          </div>
+        </div>
+        <div className="flex items-center gap-[7px]">
+          <span className="rounded-md border border-[#24242c] bg-[#16161c] px-[9px] py-1 font-mono text-[11px] text-[#9a9aa5]">
+            120%
+          </span>
+          <span className="inline-flex items-center gap-[5px] rounded-md bg-[#ffe14d] px-2.5 py-1 text-[11.5px] font-semibold text-[#0b0b0d]">
+            <Download className="h-3 w-3" strokeWidth={2.2} /> Export
+          </span>
+        </div>
+      </div>
+
+      <div className="flex h-[430px]">
+        {/* tool rail */}
+        <div className="flex w-[54px] flex-none flex-col items-center gap-1.5 border-r border-[#1f1f26] bg-[#0c0c10] py-3">
+          <RailIcon active>
+            <Highlighter className="h-[17px] w-[17px]" strokeWidth={2} />
+          </RailIcon>
+          <RailIcon>
+            <StickyNote className="h-[17px] w-[17px]" strokeWidth={1.8} />
+          </RailIcon>
+          <RailIcon>
+            <Pencil className="h-[17px] w-[17px]" strokeWidth={1.8} />
+          </RailIcon>
+          <RailIcon>
+            <Shapes className="h-[17px] w-[17px]" strokeWidth={1.8} />
+          </RailIcon>
+          <RailIcon>
+            <ImageIcon className="h-[17px] w-[17px]" strokeWidth={1.8} />
+          </RailIcon>
+        </div>
+
+        {/* document canvas */}
+        <div className="dot-grid relative flex flex-1 justify-center overflow-hidden bg-[#0a0a0d] py-7">
+          <div className="relative w-[420px] rounded border border-[#25252e] bg-[#15151b] px-8 py-[30px] shadow-[0_18px_50px_-20px_rgba(0,0,0,0.7)]">
+            <div className="mb-3.5 font-display text-base font-semibold text-[#e7e7ec]">
+              3.2 · Scaled Dot-Product Attention
+            </div>
+            <div className="text-[11.5px] leading-[1.95] text-[#9a9aa5]">
+              We call our particular attention{" "}
+              <span className="rounded-[1px] bg-[#ffe14d] px-0.5 text-[#0b0b0d]">
+                “Scaled Dot-Product Attention”
+              </span>
+              . The input consists of queries and keys of dimension d_k, and values of dimension
+              d_v. We compute the dot products of the query with all keys, divide each by √d_k.
+            </div>
+            <div className="my-[11px] h-1.5 w-full rounded-[3px] bg-[#23232b]" />
+            <div className="mb-2 h-1.5 w-[88%] rounded-[3px] bg-[#23232b]" />
+            <div className="mb-2 h-1.5 w-[94%] rounded-[3px] bg-[#23232b]" />
+
+            {/* area selection box */}
+            <div className="relative my-3.5 h-[70px] rounded-[3px] border-[1.5px] border-dashed border-[#ffe14d] bg-[#ffe14d]/6">
+              {(
+                [
+                  "-top-1 -left-1",
+                  "-top-1 -right-1",
+                  "-bottom-1 -left-1",
+                  "-bottom-1 -right-1",
+                ] as const
+              ).map((pos) => (
+                <span
+                  key={pos}
+                  className={`absolute ${pos} h-[7px] w-[7px] rounded-full bg-[#ffe14d]`}
+                />
+              ))}
+              <span className="absolute -top-[9px] left-2.5 rounded-[3px] bg-[#ffe14d] px-[5px] py-px font-mono text-[8.5px] font-semibold text-[#0b0b0d]">
+                AREA · fig.2
+              </span>
+            </div>
+            <div className="mb-2 h-1.5 w-[76%] rounded-[3px] bg-[#23232b]" />
+            <div className="h-1.5 w-[91%] rounded-[3px] bg-[#23232b]" />
+
+            {/* freehand squiggle */}
+            <svg
+              viewBox="0 0 140 40"
+              className="pointer-events-none absolute bottom-[42px] left-[170px] h-10 w-[140px] overflow-visible"
+            >
+              <path
+                d="M4,22 C20,6 36,34 52,18 C66,6 80,30 96,16 C110,6 124,26 136,14"
+                fill="none"
+                stroke="#ff7a59"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className="absolute bottom-3 right-4 font-mono text-[9px] text-[#4a4a55]">
+              p. 4 / 15
+            </div>
+
+            {/* floating selection toolbar */}
+            <div className="animate-float-y absolute -right-[26px] top-[54px] flex items-center gap-[5px] rounded-lg border border-[#2e2e38] bg-[#1c1c23] px-[7px] py-[5px] shadow-[0_10px_26px_-10px_rgba(0,0,0,0.7)]">
+              <span className="h-3.5 w-3.5 rounded bg-[#ffe14d]" />
+              <span className="h-3.5 w-3.5 rounded bg-[#6fcf97]" />
+              <span className="h-3.5 w-3.5 rounded bg-[#56a3ff]" />
+              <span className="h-4 w-px bg-[#2e2e38]" />
+              <MessageSquare className="h-[13px] w-[13px] text-[#9a9aa5]" strokeWidth={2} />
+            </div>
+
+            {/* sticky note */}
+            <div className="animate-float-y absolute -right-10 top-[120px] w-[118px] rotate-[3deg] rounded-[3px] bg-[#ffe14d] px-[11px] pb-[13px] pt-2.5 shadow-[0_14px_30px_-10px_rgba(0,0,0,0.6)]">
+              <div className="text-[10.5px] font-medium leading-[1.35] text-[#3a3208]">
+                Compare with additive attention →
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* highlights sidebar */}
+        <div className="w-[236px] flex-none overflow-hidden border-l border-[#1f1f26] bg-[#0c0c10] px-3.5 py-4">
+          <div className="mb-3.5 flex items-center justify-between">
+            <span className="font-display text-[13px] font-semibold text-[#e7e7ec]">Highlights</span>
+            <span className="rounded-full bg-[#ffe14d] px-[7px] py-px font-mono text-[10px] font-semibold text-[#0b0b0d]">
+              4
+            </span>
+          </div>
+          <div className="flex flex-col gap-[9px]">
+            {(
+              [
+                { c: "#ffe14d", t: "“Scaled Dot-Product Attention”", m: "text · p.4" },
+                { c: "#6fcf97", t: "Multi-head allows attending to different positions.", m: "note · p.5" },
+                { c: "#ffe14d", t: "Figure 2 — attention diagram", m: "area · p.4" },
+                { c: "#56a3ff", t: "Positional encoding sketch", m: "drawing · p.6" },
+              ] as const
+            ).map((h, i) => (
+              <div
+                key={i}
+                className="rounded-r-[7px] bg-[#121218] px-[11px] py-[9px]"
+                style={{ borderLeft: `2px solid ${h.c}` }}
+              >
+                <div className="mb-[5px] text-[10.5px] leading-[1.45] text-[#c9c9d2]">{h.t}</div>
+                <div className="font-mono text-[9px] text-[#62626d]">{h.m}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RailIcon({ children, active }: { children: React.ReactNode; active?: boolean }) {
+  return (
+    <div
+      className={`flex h-9 w-9 items-center justify-center rounded-[9px] ${
+        active ? "bg-[#ffe14d] text-[#0b0b0d]" : "text-[#7c7c88]"
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* Code panel — always-dark snippet, matching the design's App.tsx window. */
+function CodePanel() {
+  return (
+    <div className="overflow-hidden rounded-[14px] border border-line2 bg-[#0d0d11] shadow-[0_30px_60px_-34px_rgba(0,0,0,0.7)]">
+      <div className="flex items-center gap-2 border-b border-[#1f1f26] px-4 py-3">
+        {[0, 1, 2].map((i) => (
+          <span key={i} className="h-2.5 w-2.5 rounded-full bg-[#2e2e38]" />
+        ))}
+        <span className="ml-2 font-mono text-[11.5px] text-[#6c6c78]">App.tsx</span>
+      </div>
+      <pre className="m-0 overflow-x-auto px-5 py-[22px] font-mono text-[12.5px] leading-[1.85] text-[#cfcfd8]">
+        <span className="text-[#6c6c78]">
+          // install · import "react-pdf-highlighter-plus/style.css"
+        </span>
+        {"\n"}
+        <span className="text-[#c98aff]">import</span>
+        {" {\n  "}
+        <span className="text-[#ffe14d]">PdfLoader</span>
+        {", "}
+        <span className="text-[#ffe14d]">PdfHighlighter</span>
+        {",\n  "}
+        <span className="text-[#ffe14d]">TextHighlight</span>
+        {", "}
+        <span className="text-[#ffe14d]">AreaHighlight</span>
+        {",\n} "}
+        <span className="text-[#c98aff]">from</span>{" "}
+        <span className="text-[#6fcf97]">"react-pdf-highlighter-plus"</span>
+        {";\n\n"}
+        <span className="text-[#56a3ff]">&lt;PdfLoader</span>{" "}
+        <span className="text-[#ffe14d]">document</span>
+        {"={url}"}
+        <span className="text-[#56a3ff]">&gt;</span>
+        {"\n  {(pdf) => (\n    "}
+        <span className="text-[#56a3ff]">&lt;PdfHighlighter</span>{" "}
+        <span className="text-[#ffe14d]">pdfDocument</span>
+        {"={pdf}\n      "}
+        <span className="text-[#ffe14d]">enableAreaSelection</span>
+        {"={(e) => e.altKey}"}
+        <span className="text-[#56a3ff]">&gt;</span>
+        {"\n      "}
+        <span className="text-[#56a3ff]">&lt;HighlightContainer </span>
+        <span className="text-[#56a3ff]">/&gt;</span>
+        {"\n    "}
+        <span className="text-[#56a3ff]">&lt;/PdfHighlighter&gt;</span>
+        {"\n  )}\n"}
+        <span className="text-[#56a3ff]">&lt;/PdfLoader&gt;</span>
+      </pre>
     </div>
   );
 }

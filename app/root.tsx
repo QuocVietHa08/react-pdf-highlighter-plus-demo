@@ -10,12 +10,6 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import "node_modules/react-pdf-highlighter-plus/dist/esm/style/style.css";
-import "@fontsource/geist-sans/400.css";
-import "@fontsource/geist-sans/500.css";
-import "@fontsource/geist-sans/600.css";
-import "@fontsource/geist-sans/700.css";
-import "@fontsource/geist-mono/400.css";
-import "@fontsource/geist-mono/500.css";
 
 import { ThemeProvider } from "~/components/ThemeProvider";
 
@@ -33,17 +27,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                const stored = JSON.parse(localStorage.getItem('pdf-theme') || '{}');
-                const theme = stored.state?.theme || 'system';
-                const colorTheme = stored.state?.colorTheme || 'blue';
+                const stored = JSON.parse(localStorage.getItem('pdf-theme-v2') || '{}');
+                const theme = stored.state?.theme || 'dark';
                 const root = document.documentElement;
-                root.classList.add('theme-' + colorTheme);
                 if (theme === 'system') {
                   root.classList.add(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
                 } else {
                   root.classList.add(theme);
                 }
-              } catch (e) {}
+              } catch (e) {
+                document.documentElement.classList.add('dark');
+              }
             `,
           }}
         />

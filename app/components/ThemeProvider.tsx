@@ -2,17 +2,13 @@ import { useEffect } from "react";
 import { useThemeStore } from "~/store/themeStore";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const { theme, colorTheme } = useThemeStore();
+  const { theme } = useThemeStore();
 
   useEffect(() => {
     const root = window.document.documentElement;
 
     // Remove existing theme classes
     root.classList.remove("light", "dark");
-    root.classList.remove("theme-blue", "theme-orange", "theme-yellow", "theme-green", "theme-purple", "theme-rose");
-
-    // Apply color theme
-    root.classList.add(`theme-${colorTheme}`);
 
     // Apply light/dark theme
     if (theme === "system") {
@@ -23,7 +19,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } else {
       root.classList.add(theme);
     }
-  }, [theme, colorTheme]);
+  }, [theme]);
 
   // Listen for system theme changes
   useEffect(() => {

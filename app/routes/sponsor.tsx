@@ -2,14 +2,12 @@ import { Link } from "react-router";
 import type { Route } from "./+types/sponsor";
 import {
   ArrowLeft,
-  FileText,
   GithubIcon,
   Heart,
   Coffee,
   Sparkles,
   Star,
   Code2,
-  Linkedin,
   ExternalLink,
   Rocket,
   Check,
@@ -20,7 +18,8 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
-import { ThemeToggle } from "~/components/ui/theme-toggle";
+import { SiteNav } from "~/components/SiteNav";
+import { SiteFooter } from "~/components/SiteFooter";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -101,64 +100,36 @@ function FeatureIcon({ value }: { value: "yes" | "no" | "partial" }) {
 
 export default function Sponsor() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b bg-background/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-                  <FileText className="h-5 w-5 text-primary-foreground" />
-                </div>
-                <span className="text-lg font-bold">React PDF Highlighter Plus</span>
-              </Link>
-              <Badge variant="secondary" className="text-xs">
-                v1.1.4
-              </Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/docs">Docs</Link>
-              </Button>
-              <Button variant="ghost" size="sm" asChild>
-                <a
-                  href="https://github.com/QuocVietHa08/react-pdf-highlighter-plus"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2"
-                >
-                  <GithubIcon className="h-5 w-5" />
-                  <span className="hidden sm:inline">GitHub</span>
-                </a>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="dot-grid min-h-screen bg-background font-sans text-foreground antialiased">
+      <SiteNav
+        links={[
+          { label: "Docs", to: "/docs" },
+          { label: "Changelog", to: "/changelog" },
+        ]}
+      />
 
       {/* Main Content */}
-      <main className="pt-24 pb-16 px-4">
+      <main className="px-4 pb-16 pt-12 sm:px-8">
         <div className="max-w-4xl mx-auto">
           {/* Back button */}
-          <Button variant="ghost" size="sm" asChild className="mb-8">
-            <Link to="/" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Home
-            </Link>
-          </Button>
+          <Link
+            to="/"
+            className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to home
+          </Link>
 
           {/* Hero Section */}
           <div className="text-center mb-16">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-pink-500/10 mb-6">
+            <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-pink-500/10">
               <Heart className="h-10 w-10 text-pink-500" />
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold mb-4">
-              Support This Project
+            <h1 className="mb-4 font-display text-[44px] font-semibold leading-[1.05] tracking-[-0.02em] sm:text-5xl">
+              Support this project
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-              React PDF Highlighter Plus is free and open source. If you find it useful,
+              react-pdf-highlighter-plus is free and open source. If you find it useful,
               consider supporting its development to help keep it maintained and improved.
             </p>
 
@@ -178,8 +149,8 @@ export default function Sponsor() {
 
           {/* Benefits Grid */}
           <div className="mb-16">
-            <h2 className="text-2xl font-bold text-center mb-8">
-              Why Sponsor?
+            <h2 className="mb-8 text-center font-display text-2xl font-semibold">
+              Why sponsor?
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {benefits.map((benefit) => (
@@ -204,11 +175,11 @@ export default function Sponsor() {
 
           {/* Comparison Section */}
           <div className="mb-16">
-            <h2 className="text-2xl font-bold text-center mb-2">
-              How We Compare
+            <h2 className="mb-2 text-center font-display text-2xl font-semibold">
+              How we compare
             </h2>
             <p className="text-center text-muted-foreground mb-8">
-              See how React PDF Highlighter Plus stacks up against other PDF solutions
+              See how react-pdf-highlighter-plus stacks up against other PDF solutions
             </p>
 
             <Card className="overflow-hidden">
@@ -381,8 +352,8 @@ export default function Sponsor() {
 
           {/* Maker's Other Products */}
           <div className="mb-16">
-            <h2 className="text-2xl font-bold text-center mb-2">
-              More from the Maker
+            <h2 className="mb-2 text-center font-display text-2xl font-semibold">
+              More from the maker
             </h2>
             <p className="text-center text-muted-foreground mb-8">
               Check out other products built by Edward Ha
@@ -439,60 +410,7 @@ export default function Sponsor() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="py-12 px-4 border-t">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-                <FileText className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <div>
-                <p className="font-semibold">React PDF Highlighter Plus</p>
-                <p className="text-sm text-muted-foreground">
-                  Created by{" "}
-                  <a
-                    href="https://www.linkedin.com/in/viethadev/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-foreground transition-colors underline-offset-4 hover:underline font-medium"
-                  >
-                    Edward Ha
-                  </a>
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" asChild>
-                <a
-                  href="https://www.linkedin.com/in/viethadev/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Creator's LinkedIn"
-                >
-                  <Linkedin className="h-5 w-5" />
-                </a>
-              </Button>
-              <Button variant="ghost" size="icon" asChild>
-                <a
-                  href="https://github.com/QuocVietHa08/react-pdf-highlighter-plus"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <GithubIcon className="h-5 w-5" />
-                </a>
-              </Button>
-            </div>
-          </div>
-
-          <Separator className="my-8" />
-
-          <div className="text-center text-sm text-muted-foreground">
-            Open source under MIT License
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

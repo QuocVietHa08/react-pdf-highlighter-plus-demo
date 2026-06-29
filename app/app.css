@@ -93,6 +93,18 @@
   }
 }
 
+/* PDF text layer: keep selected glyphs transparent so only the highlight band
+   shows. The global ::selection above forces a dark text color, which paints
+   pdf.js's invisible (substitute-font) selectable text on top of the rendered
+   page — the doubled/ghosted look. Transparent text leaves just the canvas glyphs
+   under the selection band. */
+.textLayer ::selection {
+  color: transparent;
+}
+.textLayer ::-moz-selection {
+  color: transparent;
+}
+
 /* Library landing — dot-grid backdrop + animations (from Library.dc.html) */
 .dot-grid {
   background-image: radial-gradient(circle at 1px 1px, var(--grid) 1px, transparent 0);

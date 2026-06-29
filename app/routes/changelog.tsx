@@ -15,6 +15,8 @@ import {
   MousePointer2,
   Menu,
   Search,
+  Headphones,
+  ZoomIn,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { SiteNav } from "~/components/SiteNav";
@@ -44,6 +46,72 @@ interface ChangelogEntry {
 }
 
 const changelog: ChangelogEntry[] = [
+  {
+    version: "1.3.0",
+    date: "2026-06-29",
+    title: "React PDF Highlighter Plus v1.2.0",
+    features: [
+      {
+        icon: Moon,
+        title: "Hue-Preserving Dark Mode",
+        description:
+          "Pages recolor at render time (OKLab) instead of a CSS invert filter",
+        items: [
+          "Colors keep their hue; embedded photos keep their pixels",
+          "Configure via theme.darkModeColors { background, foreground }",
+          "Highlights stay readable; LeftPanel gains a mode prop",
+          "Scroll AND zoom preserved when toggling the theme",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Citations",
+        description:
+          "Turn any quote into a precise highlight with getTextPosition",
+        items: [
+          "Whitespace-insensitive matching with a fuzzy fallback",
+          "Paste an AI quote → jump + highlight the exact phrase",
+          "Citations panel with click-to-jump",
+        ],
+      },
+      {
+        icon: Headphones,
+        title: "Read Aloud (Text-to-Speech)",
+        description: "Speak the document and follow each sentence",
+        items: [
+          "Highlights + auto-scrolls to each sentence as it's read",
+          "Play / pause / seek / speed / voice transport",
+          "Pluggable TTS engine (browser voice now, cloud later)",
+        ],
+      },
+      {
+        icon: ZoomIn,
+        title: "Zoom, Smooth Scroll & Deep Linking",
+        description: "Pinch zoom, animated scroll, and ?page=N links",
+        items: [
+          "Pinch / ctrl(⌘)+wheel zoom, smooth via GPU transform",
+          "scrollToHighlight animates and respects reduced-motion",
+          "initialPage + onPageChange for deep links",
+        ],
+      },
+      {
+        icon: Package,
+        title: "Faster Loading & Stability",
+        description: "Progressive loading, caching, and render fixes",
+        items: [
+          "PdfLoader: range loading, auth headers, document cache",
+          "Fixed a React-root render warning + a memory leak",
+          "Less re-rendering while scrolling annotated documents",
+        ],
+      },
+    ],
+    technical: [
+      "Updated `react-pdf-highlighter-plus` from v1.1.4 to v1.2.0",
+      "Replaced `theme.darkModeInvertIntensity` with `theme.darkModeColors`",
+      "Added `getTextPosition`, `onZoomChange`, `initialPage`, `onPageChange`, `LeftPanel mode`",
+      "New demo: Citations panel + Read-aloud transport (built on `extractSentences` + `scrollToHighlight`)",
+    ],
+  },
   {
     version: "1.2.1",
     date: "2026-04-30",

@@ -17,6 +17,10 @@ export interface CommentedHighlight extends Highlight {
   shapeType?: "rectangle" | "circle" | "arrow";
   strokeColor?: string;
   strokeWidth?: number;
+  // Transient markers (not persisted as user annotations)
+  isCitation?: boolean;
+  quote?: string;
+  isReading?: boolean;
 }
 
 interface HighlightStore {

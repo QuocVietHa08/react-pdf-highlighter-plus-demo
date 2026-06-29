@@ -24,6 +24,10 @@ import {
   Terminal,
   Search,
   LinkedinIcon,
+  Moon,
+  Sparkles,
+  Headphones,
+  ZoomIn,
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "~/components/ui/button";
@@ -212,6 +216,10 @@ const sections: DocSection[] = [
               <FeatureCard icon={Box} title="Area Selection" description="Highlight rectangular regions for images and diagrams" />
               <FeatureCard icon={FileText} title="Freetext Notes" description="Add sticky notes anywhere on the document" />
               <FeatureCard icon={Download} title="PDF Export" description="Export annotated PDFs with all highlights embedded" />
+              <FeatureCard icon={Moon} title="Hue-Preserving Dark Mode" description="OKLab recolor keeps colors & photos readable — no harsh invert" />
+              <FeatureCard icon={Sparkles} title="Citations" description="Turn any quote into a precise highlight with getTextPosition" />
+              <FeatureCard icon={Headphones} title="Read Aloud" description="Text-to-speech that highlights & follows each sentence" />
+              <FeatureCard icon={ZoomIn} title="Pinch & Smooth Scroll" description="Pinch / ctrl+wheel zoom and animated scroll-to-highlight" />
             </FeatureGrid>
 
             <List>
@@ -1485,6 +1493,167 @@ const [highlights, setHighlights] = useState<CustomHighlight[]>([]);`}
               <ListItem>Add tests if applicable</ListItem>
               <ListItem>Submit a pull request</ListItem>
             </List>
+          </div>
+        ),
+      },
+    ],
+  },
+  {
+    id: "v120",
+    icon: Sparkles,
+    title: "New in 1.2.0",
+    items: [
+      {
+        id: "dark-mode",
+        title: "Dark Mode",
+        content: (
+          <div>
+            <Heading2>Hue-Preserving Dark Mode</Heading2>
+            <Paragraph>
+              Dark mode recolors each page <strong>at render time</strong> with a
+              hue-preserving OKLab map — white paper maps to a dark background and
+              black text to a light foreground, while colors keep their hue and
+              embedded photos keep their pixels (no CSS <InlineCode>invert()</InlineCode>).
+            </Paragraph>
+            <CodeBlock
+              filename="dark-mode.tsx"
+              code={`<PdfHighlighter
+  pdfDocument={pdfDocument}
+  theme={{
+    mode: "dark",
+    darkModeColors: { background: "#141210", foreground: "#eae6e0" },
+  }}
+  highlights={highlights}
+>
+  <HighlightContainer />
+</PdfHighlighter>
+
+// Match the outline/thumbnails panel
+<LeftPanel mode="dark" /* ... */ />`}
+            />
+            <List>
+              <ListItem>Highlights stay readable (translucent fill + border).</ListItem>
+              <ListItem>Scroll <em>and</em> zoom are preserved when toggling.</ListItem>
+              <ListItem>Drawing/shape default ink turns white in dark mode.</ListItem>
+            </List>
+            <Callout type="warning" title="Deprecated">
+              <InlineCode>theme.darkModeInvertIntensity</InlineCode> is ignored —
+              use <InlineCode>darkModeColors</InlineCode> instead.
+            </Callout>
+          </div>
+        ),
+      },
+      {
+        id: "citations",
+        title: "Citations",
+        content: (
+          <div>
+            <Heading2>Locate Text &amp; Citations</Heading2>
+            <Paragraph>
+              <InlineCode>getTextPosition</InlineCode> finds a piece of text in the
+              PDF and returns a precise <InlineCode>ScaledPosition</InlineCode> —
+              turn an external quote (e.g. an AI citation) into a highlight you can
+              render or scroll to. Matching ignores whitespace/line-wraps with a
+              fuzzy fallback.
+            </Paragraph>
+            <CodeBlock
+              filename="citation.tsx"
+              code={`import { getTextPosition } from "react-pdf-highlighter-plus";
+
+const match = await getTextPosition(pdfDocument, "the cited quote");
+// { position, pageNumber, matchedText, confidence: "exact" | "fuzzy" } | null
+
+if (match) {
+  const citation = {
+    id: "cite-1",
+    type: "text",
+    content: { text: match.matchedText },
+    position: match.position,
+  };
+  setHighlights((prev) => [citation, ...prev]);
+  utils.scrollToHighlight(citation); // smooth scroll + flash
+}`}
+            />
+            <Callout type="tip" title="Try it">
+              Open the <strong>Citations</strong> panel in the demo, paste a
+              sentence from the PDF, and click <strong>Find &amp; cite</strong>.
+            </Callout>
+          </div>
+        ),
+      },
+      {
+        id: "read-aloud",
+        title: "Read Aloud",
+        content: (
+          <div>
+            <Heading2>Read Aloud (Text-to-Speech)</Heading2>
+            <Paragraph>
+              Speak the document and highlight + auto-scroll to each sentence as
+              it's read. <InlineCode>extractSentences</InlineCode> gives the ordered
+              script (text + position) and <InlineCode>scrollToHighlight</InlineCode>
+              follows along. The TTS engine is yours (browser{" "}
+              <InlineCode>speechSynthesis</InlineCode> or a cloud voice).
+            </Paragraph>
+            <CodeBlock
+              filename="read-aloud.tsx"
+              code={`import { extractSentences } from "react-pdf-highlighter-plus";
+
+const sentences = (
+  await extractSentences(pdfDocument, { includePositions: true })
+).filter((s) => s.position);
+
+function readFrom(i) {
+  const s = sentences[i];
+  if (!s) return;
+  const reading = { id: "reading", type: "text",
+    content: { text: s.text }, position: s.position };
+  setHighlights((prev) => [reading, ...prev.filter((h) => h.id !== "reading")]);
+  utils.scrollToHighlight(reading);
+
+  const u = new SpeechSynthesisUtterance(s.text);
+  u.onend = () => readFrom(i + 1);
+  speechSynthesis.speak(u);
+}
+readFrom(0);`}
+            />
+          </div>
+        ),
+      },
+      {
+        id: "zoom-nav",
+        title: "Zoom & Navigation",
+        content: (
+          <div>
+            <Heading2>Zoom, Smooth Scroll &amp; Deep Linking</Heading2>
+            <List>
+              <ListItem>
+                <strong>Pinch / ctrl(⌘)+wheel zoom</strong> built in — smooth
+                (GPU transform during the gesture); <InlineCode>onZoomChange</InlineCode>{" "}
+                reports the new scale.
+              </ListItem>
+              <ListItem>
+                <InlineCode>scrollToHighlight</InlineCode> now scrolls{" "}
+                <strong>smoothly</strong> and respects{" "}
+                <InlineCode>prefers-reduced-motion</InlineCode>.
+              </ListItem>
+              <ListItem>
+                <InlineCode>initialPage</InlineCode> +{" "}
+                <InlineCode>onPageChange</InlineCode> for{" "}
+                <InlineCode>?page=N</InlineCode> deep links.
+              </ListItem>
+            </List>
+            <CodeBlock
+              filename="navigation.tsx"
+              code={`<PdfHighlighter
+  pdfDocument={pdfDocument}
+  initialPage={12}
+  onPageChange={(page) => syncUrl(page)}
+  onZoomChange={(scale) => setZoom(scale)}
+  highlights={highlights}
+>
+  <HighlightContainer />
+</PdfHighlighter>`}
+            />
           </div>
         ),
       },

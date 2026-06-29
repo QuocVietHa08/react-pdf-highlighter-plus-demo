@@ -11,7 +11,11 @@ A modern, feature-rich PDF annotation demo application built with React, showcas
 - **Freehand Drawing** - Draw with customizable stroke color and width
 - **Shape Annotations** - Add rectangles, circles, and arrows
 - **PDF Export** - Export with all annotations permanently embedded
-- **Dark/Light Mode** - Theme toggle with 6 color themes + PDF page inversion
+- **Hue-Preserving Dark Mode** - OKLab recolor keeps colors & photos readable (1.2.0)
+- **Citations** - Paste a quote → jump + highlight the exact phrase (`getTextPosition`, 1.2.0)
+- **Read Aloud** - Text-to-speech that highlights & follows each sentence (1.2.0)
+- **Pinch Zoom & Smooth Scroll** - Pinch / ctrl+wheel zoom, animated scroll-to-highlight (1.2.0)
+- **Deep Linking** - `?page=N` via `initialPage` / `onPageChange` (1.2.0)
 - **Document Outline** - Navigate PDF using table of contents
 - **Page Thumbnails** - Visual page navigation panel
 - **LocalStorage Persistence** - Annotations persist across sessions

@@ -22,12 +22,22 @@ import {
   PdfLoader,
   SignaturePad,
   exportPdf,
+  extractSentences,
+  getTextPosition,
 } from "react-pdf-highlighter-plus";
 import { useHighlightStore, type CommentedHighlight } from "~/store/highlightStore";
 import { useEffectiveTheme } from "~/hooks/useEffectiveTheme";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Separator } from "./ui/separator";
+import { Sparkles } from "lucide-react";
+import {
+  CitationsPanel,
+  type CitationListItem,
+} from "./CitationsPanel";
+import { ReaderToolbar } from "./ReaderToolbar";
+import { WebSpeechTts } from "~/lib/tts";
+import { useReader } from "~/lib/useReader";
 
 const SAMPLE_PDF_URL = "https://arxiv.org/pdf/2203.11115";
 
@@ -84,7 +94,8 @@ export function PdfViewer() {
       mode: effectiveTheme,
       containerBackgroundColor:
         effectiveTheme === "dark" ? "hsl(240 10% 3.9%)" : "hsl(240 4.8% 95.9%)",
-      darkModeInvertIntensity: 0.87,
+      // 1.2.0: hue-preserving OKLab recolor (replaces darkModeInvertIntensity)
+      darkModeColors: { background: "#141210", foreground: "#eae6e0" },
       scrollbarThumbColor:
         effectiveTheme === "dark" ? "hsl(240 5% 50%)" : "hsl(240 3.8% 70%)",
       scrollbarTrackColor:
@@ -119,11 +130,119 @@ export function PdfViewer() {
   const highlighterUtilsRef = useRef<PdfHighlighterUtils>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const pdfDocumentRef = useRef<any>(null);
 
   // Tour hook
   const { startTour } = useTour();
   // Track when highlighter utils are ready for LeftPanel
   const [highlighterReady, setHighlighterReady] = useState(false);
+
+  // --- Citations (transient, not persisted) ---------------------------------
+  const [citationHighlights, setCitationHighlights] = useState<
+    CommentedHighlight[]
+  >([]);
+  const [citations, setCitations] = useState<CitationListItem[]>([]);
+  const [activeCitationId, setActiveCitationId] = useState<string | null>(null);
+  const [citationLoading, setCitationLoading] = useState(false);
+  const [citationsOpen, setCitationsOpen] = useState(false);
+
+  const handleFindCitation = async (quote: string): Promise<boolean> => {
+    const pdfDocument = pdfDocumentRef.current;
+    if (!pdfDocument) return false;
+    setCitationLoading(true);
+    try {
+      const match = await getTextPosition(pdfDocument, quote);
+      if (!match) return false;
+      const id = getNextId();
+      const highlight: CommentedHighlight = {
+        id,
+        type: "text",
+        content: { text: match.matchedText },
+        position: match.position,
+        isCitation: true,
+        quote,
+        highlightColor: "rgba(96, 165, 250, 0.45)",
+      };
+      setCitationHighlights((prev) => [highlight, ...prev]);
+      setCitations((prev) => [
+        {
+          id,
+          quote,
+          searchText: match.matchedText,
+          pageNumber: match.pageNumber,
+          confidence: match.confidence,
+        },
+        ...prev,
+      ]);
+      setActiveCitationId(id);
+      setTimeout(
+        () => highlighterUtilsRef.current?.scrollToHighlight(highlight),
+        80,
+      );
+      return true;
+    } finally {
+      setCitationLoading(false);
+    }
+  };
+
+  const handleJumpCitation = (id: string) => {
+    const highlight = citationHighlights.find((h) => h.id === id);
+    if (highlight) highlighterUtilsRef.current?.scrollToHighlight(highlight);
+    setActiveCitationId(id);
+  };
+
+  const handleClearCitations = () => {
+    setCitations([]);
+    setCitationHighlights([]);
+    setActiveCitationId(null);
+  };
+
+  // --- Read aloud (PDF -> audio) --------------------------------------------
+  const ttsEngine = useMemo(() => new WebSpeechTts(), []);
+  const [readingHighlight, setReadingHighlight] =
+    useState<CommentedHighlight | null>(null);
+
+  const buildReaderScript = useCallback(async () => {
+    const pdfDocument = pdfDocumentRef.current;
+    if (!pdfDocument) return [];
+    const sentences = await extractSentences(pdfDocument, {
+      includePositions: true,
+    });
+    return sentences
+      .filter((s) => s.position)
+      .map((s) => ({
+        text: s.text,
+        pageNumber: s.pageNumber,
+        position: s.position as ScaledPosition,
+      }));
+  }, []);
+
+  const handleReadSentence = useCallback(
+    (s: { text: string; pageNumber: number; position: ScaledPosition }) => {
+      const highlight: CommentedHighlight = {
+        id: "reading-highlight",
+        type: "text",
+        content: { text: s.text },
+        position: s.position,
+        isReading: true,
+        highlightColor: "rgba(16, 185, 129, 0.4)",
+      };
+      setReadingHighlight(highlight);
+      highlighterUtilsRef.current?.scrollToHighlight(highlight);
+    },
+    [],
+  );
+
+  const handleReaderStop = useCallback(() => setReadingHighlight(null), []);
+
+  const reader = useReader({
+    engine: ttsEngine,
+    buildScript: buildReaderScript,
+    getText: (s) => s.text,
+    onReadSentence: handleReadSentence,
+    onStop: handleReaderStop,
+    resetKey: url,
+  });
 
   // Click listeners for context menu
   useEffect(() => {
@@ -532,7 +651,9 @@ export function PdfViewer() {
       <div className="flex flex-1 overflow-hidden">
         {/* PDF Loader wraps both LeftPanel and PdfHighlighter */}
         <PdfLoader document={url}>
-          {(pdfDocument) => (
+          {(pdfDocument) => {
+            pdfDocumentRef.current = pdfDocument;
+            return (
             <>
               {/* PDF Viewer - rendered first but displayed second via order */}
               <div className="relative flex-1 overflow-hidden order-2">
@@ -548,6 +669,20 @@ export function PdfViewer() {
                     }
                   }}
                   pdfScaleValue={pdfScaleValue}
+                  onZoomChange={(scale: number) =>
+                    setPdfScaleValue(Math.round(scale * 100) / 100)
+                  }
+                  initialPage={
+                    Number(
+                      new URLSearchParams(window.location.search).get("page"),
+                    ) || undefined
+                  }
+                  onPageChange={(page: number) => {
+                    const next = new URL(window.location.href);
+                    if (page <= 1) next.searchParams.delete("page");
+                    else next.searchParams.set("page", String(page));
+                    window.history.replaceState(null, "", next);
+                  }}
                   textSelectionColor={highlightPen ? "rgba(255, 226, 143, 1)" : undefined}
                   onSelection={(highlightPen || areaMode) ? (selection) => {
                     console.log("onSelection triggered", selection);
@@ -555,7 +690,11 @@ export function PdfViewer() {
                     if (areaMode) setAreaMode(false);
                   } : undefined}
                   selectionTip={highlightPen ? undefined : <ExpandableTip addHighlight={addHighlight} />}
-                  highlights={highlights}
+                  highlights={[
+                    ...(readingHighlight ? [readingHighlight] : []),
+                    ...citationHighlights,
+                    ...highlights,
+                  ]}
                   enableFreetextCreation={() => freetextMode}
                   onFreetextClick={handleFreetextClick}
                   enableImageCreation={() => imageMode}
@@ -607,11 +746,61 @@ export function PdfViewer() {
                   sidebarOpen={sidebarOpen}
                   onExitAllModes={handleExitAllModes}
                 />
+
+                {/* Citations (AI quote -> jump + highlight) */}
+                <div className="absolute bottom-4 left-4 z-20">
+                  {citationsOpen ? (
+                    <CitationsPanel
+                      citations={citations}
+                      activeId={activeCitationId}
+                      loading={citationLoading}
+                      onFind={handleFindCitation}
+                      onJump={handleJumpCitation}
+                      onClear={handleClearCitations}
+                      onClose={() => setCitationsOpen(false)}
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setCitationsOpen(true)}
+                      aria-label="Open citations"
+                      className="inline-flex items-center gap-2 rounded-full border bg-background/95 px-4 py-2.5 text-sm font-medium shadow-lg backdrop-blur transition-colors hover:bg-muted"
+                    >
+                      <Sparkles className="h-4 w-4 text-blue-500" aria-hidden="true" />
+                      Citations
+                      {citations.length > 0 && (
+                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1.5 text-[11px] font-semibold text-white">
+                          {citations.length}
+                        </span>
+                      )}
+                    </button>
+                  )}
+                </div>
+
+                {/* Read-aloud transport (PDF -> audio) */}
+                <div className="absolute bottom-4 left-1/2 z-20 -translate-x-1/2">
+                  <ReaderToolbar
+                    status={reader.status}
+                    currentIndex={reader.currentIndex}
+                    total={reader.total}
+                    rate={reader.rate}
+                    voices={reader.voices}
+                    voiceId={reader.voiceId}
+                    onRateChange={reader.setRate}
+                    onVoiceChange={reader.setVoiceId}
+                    onPlay={reader.play}
+                    onPause={reader.pause}
+                    onResume={reader.resume}
+                    onStop={reader.stop}
+                    onSeek={reader.seek}
+                  />
+                </div>
               </div>
 
               {/* Left Panel - Document Outline & Thumbnails (rendered after PdfHighlighter but displayed first via order) */}
               <LeftPanel
                 pdfDocument={pdfDocument}
+                mode={effectiveTheme}
                 isOpen={leftPanelOpen}
                 onOpenChange={setLeftPanelOpen}
                 width={256}
@@ -627,7 +816,8 @@ export function PdfViewer() {
                 className="order-1"
               />
             </>
-          )}
+            );
+          }}
         </PdfLoader>
 
         {/* Right Sidebar - Highlights */}
